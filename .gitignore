@@ -1,0 +1,11 @@
+# Logs
+*.log
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Credential/Config files (if any are added later)
+*.env
+auth-profiles.json
+clawdbot.json

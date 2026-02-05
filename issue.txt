@@ -1,0 +1,106 @@
+Z:\antigravity\attack
+GitHub: https://github.com/inchinet/attrack
+
+---
+
+To protect attacks, i write these .sh, make sure
+sudo chmod 700 /var/www/html/*.sh or put them to /usr/local/bin/ or /home/ubuntuadmin/scripts/
+
+1) trafficmonitor.sh
+THRESHOLD=60  # Maximum requests per minute before banning
+
+#!/bin/bash
+
+# Configuration
+JAIL="apache-auth"
+THRESHOLD=60  # Maximum requests per minute before banning
+
+sudo awk -v cutoff_epoch="$(date -d '24 hours ago' +%s)" ' \
+     BEGIN {\
+         split("Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec", month, " ");\
+         for(i=1; i<=12; i++) m[month[i]]=i;\
+     }\
+     {\
+         split(substr($4, 2), dt, ":");\
+         split(dt[1], d, "/");\
+         log_epoch = mktime(d[3] " " m[d[2]] " " d[1] " " dt[2] " " dt[3] " " dt[4]);\
+         if (log_epoch >= cutoff_epoch) {\
+             print $1, substr($4, 2, 17);\
+         }\
+     }' /var/log/apache2/access.log | sort | uniq -c | awk -v limit="$THRESHOLD" ' \
+     {\
+         if ($1 >= limit) {\
+             print $1, $2, $3\
+         }\
+     }' | while read count ip minute; do
+    echo "ALERT: $count requests from $ip during minute $minute. Triggering ban..."
+    sudo fail2ban-client set "$JAIL" banip "$ip" > /dev/null 2>&1
+done
+
+2)send_tarffic_report.sh
+#!/bin/bash
+
+# Configuration
+LOG_FILE="/var/log/traffic-report.log"
+MONITOR_SCRIPT="/var/www/html/trafficmonitor.sh"
+
+# Ensure log file is writable
+touch "$LOG_FILE" 2>/dev/null || LOG_FILE="/tmp/traffic-report.log"
+
+echo "$(date): Starting traffic report check" > "$LOG_FILE"
+
+# Check if monitor script exists
+if [ ! -f "$MONITOR_SCRIPT" ]; then
+    echo "$(date): ERROR: $MONITOR_SCRIPT not found!" >> "$LOG_FILE"
+    exit 1
+fi
+
+# Run the monitor script
+OUTPUT=$("$MONITOR_SCRIPT")
+
+if [ -n "$OUTPUT" ]; then
+    MESSAGE_HEADER="=== Traffic Monitor Report ($(date)) ==="
+    FULL_MESSAGE="${MESSAGE_HEADER}\n${OUTPUT}"
+    
+    # Instead of WhatsApp, we log the full report and print to stdout
+    echo -e "$FULL_MESSAGE" >> "$LOG_FILE"
+    echo -e "$FULL_MESSAGE"
+    
+    echo "$(date): Report generated and logged." >> "$LOG_FILE"
+else
+    echo "$(date): No traffic spikes to report." >> "$LOG_FILE"
+fi
+
+echo "$(date): Script finished." >> "$LOG_FILE"
+
+
+sudo chmod 700 /var/www/html/send_traffic_report.sh
+
+3) auto run at 23:59 everyday
+crontab -e 
+59 23 * * * /var/www/html/send_traffic_report.sh >> /var/log/traffic-report.log 2>&1
+
+
+sudo cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local
+sudo nano /etc/fail2ban/jail.local
+
+[apache-auth]
+enabled = true
+port    = http,https
+logpath = %(apache_error_log)s
+
+sudo systemctl restart fail2ban
+
+To make sure this works, run this command on your server to see your active jail names:
+
+sudo fail2ban-client status
+sudo fail2ban-client status apache-auth
+
+1. remove/unban ip from jail if need
+sudo fail2ban-client set apache-auth unbanip <IP_ADDRESS>
+
+2. Unban an IP from ALL jails at once:
+sudo fail2ban-client unban <IP_ADDRESS>
+
+3. Manually ban an IP (if you want to test it):
+sudo fail2ban-client set apache-auth banip <IP_ADDRESS>
