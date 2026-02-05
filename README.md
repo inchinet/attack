@@ -2,7 +2,8 @@
 
 A collection of lightweight shell scripts designed to protect Linux servers (specifically Ubuntu/Oracle Cloud) from automated attacks, DDoS attempts, and rapid-fire requests.
 
-![Internet attack](https://github.com/inchinet/attack/blob/master/issue.png)
+![Internet attack](https://github.com/inchinet/attack/blob/main/issue.png)
+
 
 ## 🚀 Overview
 
@@ -64,3 +65,4 @@ chmod 700 send_security_report.sh
 
 ## 📜 License
 MIT License - Feel free to use and modify!
+
