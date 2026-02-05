@@ -2,7 +2,6 @@
 
 A collection of lightweight shell scripts designed to protect Linux servers (specifically Ubuntu/Oracle Cloud) from automated attacks, DDoS attempts, and rapid-fire requests.
 
-![Internet attack](https://github.com/inchinet/attack/blob/master/issue.png)
 
 ## 🚀 Overview
 
@@ -40,6 +39,7 @@ sudo cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local
 sudo nano /etc/fail2ban/jail.local
 (bantime = -1 meant permanent ban)
 
+```bash
 [DEFAULT]
 bantime = -1
 
@@ -47,6 +47,7 @@ bantime = -1
 enabled = true
 port    = http,https
 logpath = %(apache_error_log)s
+```
 
 sudo systemctl restart fail2ban
 
