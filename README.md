@@ -2,8 +2,7 @@
 
 A collection of lightweight shell scripts designed to protect Linux servers (specifically Ubuntu/Oracle Cloud) from automated attacks, DDoS attempts, and rapid-fire requests.
 
-
-![internet attrack](https://github.com/inchinet/attrack/blob/main/issue.png)
+![Internet attack](https://github.com/inchinet/attack/blob/master/issue.png)
 
 ## 🚀 Overview
 
@@ -23,7 +22,9 @@ These scripts monitor your Apache/Web server access logs in real-time. If an IP 
 | Script | Purpose |
 | :--- | :--- |
 | `trafficmonitor.sh` | The core engine. Analyzes logs and triggers bans. |
-| `send_traffic_report.sh` | Wrapper script to generate reports and send notifications. |
+| `send_traffic_report.sh` | Wrapper script to generate traffic reports and send notifications. |
+| `securityofficer.sh` | Scans for suspicious authentication failures over the last 24 hours. |
+| `send_security_report.sh` | Generates security incident reports and sends alerts. |
 
 ---
 
@@ -45,7 +46,11 @@ To run the check and send a report every night at 23:59:
 1. Run `crontab -e`
 2. Add the following line:
 ```bash
+# Traffic report every night at 23:59
 59 23 * * * /path/to/send_traffic_report.sh >> /var/log/traffic-report.log 2>&1
+
+# Security incident report every night at 23:59
+59 23 * * * /path/to/send_security_report.sh >> /var/log/security-report.log 2>&1
 ```
 
 ---
@@ -54,6 +59,7 @@ To run the check and send a report every night at 23:59:
 Ensure these scripts are owned by your primary user or root and have restricted permissions:
 ```bash
 chmod 700 send_traffic_report.sh
+chmod 700 send_security_report.sh
 ```
 
 ## 📜 License
