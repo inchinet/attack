@@ -36,7 +36,8 @@ If your server is in the cloud (like **Oracle Cloud**), the network has its own 
    - **Destination Port Range:** `2222`
 **DO NOT skip this.** If you change the port without opening the firewall, you will lock yourself out.
 
-### Step 1:
+### Step 1: Allow new port 2222
+
 #### Option A: If using UFW (Ubuntu/Debian)
 ```bash
 # Replace 2222 with your preferred port
@@ -133,16 +134,19 @@ Restarting Fail2ban usually cleans up the port 22 rules automatically.
 
 1. **Check for remnants:**
    ```bash
-   sudo iptables -L -n --line-numbers
+   sudo ufw status numbered				#if use ufw
+   sudo iptables -L -n --line-numbers	#if use iptables
    ```
 2. **Manual Cleanup (if port 22 is still there):**
    ```bash
    # Use the line number from the previous command
-   sudo iptables -D INPUT {LineNumber}
+   sudo ufw delete {LineNumber}			#if use ufw
+   sudo iptables -D INPUT {LineNumber}	#if use iptables
    ```
 3. **Save changes (Crucial):**
    ```bash
-   sudo netfilter-persistent save
+   sudo ufw reload						#if use ufw
+   sudo netfilter-persistent save		#if use iptables
    ```
 
 #### 5.3: Cloud Console (OCI/AWS)
