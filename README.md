@@ -98,6 +98,28 @@ To receive a daily summary at 23:59 PM:
 59 23 * * * /var/www/html/send_security_report.sh >> /var/log/security-report.log 2>&1
 ```
 
+## 🚀 check ban IP
+```bash
+sudo fail2ban-client status apache-auth
+sudo fail2ban-client status apache-noscript
+sudo fail2ban-client status apache-badbots
+sudo fail2ban-client status sshd
+```
+
+1. remove/unban ip from jail if need
+```bash
+sudo fail2ban-client set apache-auth unbanip <IP_ADDRESS>
+```
+
+2. Unban an IP from ALL jails at once:
+```bash
+sudo fail2ban-client unban <IP_ADDRESS>
+```
+
+3. Manually ban an IP (if you want to test it):
+```bash
+sudo fail2ban-client set apache-auth banip <IP_ADDRESS>
+```
 ---
 
 ## 🛡️ Extra Guides
