@@ -107,4 +107,4 @@ To receive a daily summary at 09:00 AM:
 ## 📜 License
 MIT License - Developed by [inchinet](https://github.com/inchinet). Feel free to use and modify!
 
->>>>>>> f1a4f6b (docs: add SSH security guide and update readme)
+
