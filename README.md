@@ -37,11 +37,10 @@ These scripts monitor your Apache/Web server logs. If an IP address exceeds a se
   ```bash
   sudo usermod -a -G adm $(whoami)
   # logout and login again for this to work
-  ```
-  ```bash
+
 sudo touch /var/log/security-report.log /var/log/traffic-report.log
 sudo chown $(whoami):www-data /var/log/security-report.log /var/log/traffic-report.log
-sudo chmod 700 /var/log/security-report.log /var/log/traffic-report.log
+sudo chmod 750 /var/log/security-report.log /var/log/traffic-report.log
   ```
 
 ### 2. Configure Fail2ban for Permanent Bans
