@@ -2,6 +2,8 @@
 
 Changing your SSH port and disabling passwords is the most effective way to stop the "background noise" you see in your logs.
 
+![banip](https://github.com/inchinet/attack/blob/main/banip.png)
+
 ## 🛡️ Security Concept
 When you set `PasswordAuthentication no`, the server **ignores everyone** who tries to log in with a password. It will only talk to people who have your **SSH Private Key**.
 
