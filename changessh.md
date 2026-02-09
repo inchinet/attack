@@ -78,13 +78,15 @@ Newer Ubuntu versions use `ssh.socket` to manage connections. If this is active,
 2. **If it says "active", create an override:**
    ```bash
    sudo mkdir -p /etc/systemd/system/ssh.socket.d
-   sudo bash -c 'cat <<EOF > /etc/systemd/system/ssh.socket.d/override.conf
+   sudo nano /etc/systemd/system/ssh.socket.d/override.conf
+   ```
+   
+```ini
 [Socket]
 ListenStream=
 ListenStream=0.0.0.0:2222
 ListenStream=[::]:2222
-EOF'
-   ```
+```
 3. **Apply the change:**
    ```bash
    sudo systemctl daemon-reload
