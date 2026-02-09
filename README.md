@@ -34,14 +34,13 @@ These scripts monitor your Apache/Web server logs. If an IP address exceeds a se
 ### 1. Prerequisites
 - **Fail2ban**: Must be installed and running.
 - **adm Group**: Your user needs permission to read logs.
-  ```bash
+```bash
   sudo usermod -a -G adm $(whoami)
-  # logout and login again for this to work
 
-sudo touch /var/log/security-report.log /var/log/traffic-report.log
-sudo chown $(whoami):www-data /var/log/security-report.log /var/log/traffic-report.log
-sudo chmod 750 /var/log/security-report.log /var/log/traffic-report.log
-  ```
+  sudo touch /var/log/security-report.log /var/log/traffic-report.log
+  sudo chown $(whoami):www-data /var/log/security-report.log /var/log/traffic-report.log
+  sudo chmod 750 /var/log/security-report.log /var/log/traffic-report.log
+```
 
 ### 2. Configure Fail2ban for Permanent Bans
 Edit `/etc/fail2ban/jail.local` to enable permanent bans and monitor multiple log files (e.g., standard Apache).
