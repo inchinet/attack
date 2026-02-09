@@ -11,7 +11,7 @@ These scripts monitor your Apache/Web server logs. If an IP address exceeds a se
 ### Key Features
 - **Real-time Monitoring**: Scans access logs for traffic spikes.
 - **Auto-Banning**: Automatically interfaces with `fail2ban-client` to ban malicious IPs.
-- **WhatsApp Alerts**: Sends detailed reports to your phone via [Clawdbot].
+- **WhatsApp Alerts**: Sends detailed reports to your phone via [OpenClaw].
 - **Jail-Specific Reporting**: Reports now show WHICH jail caught the IP (e.g., `[sshd]`, `[apache-auth]`).
 - **Permanent Protection**: Optimized for `bantime = -1`.
 - **Lightweight**: Pure Bash and AWK — no heavy dependencies.
@@ -24,8 +24,8 @@ These scripts monitor your Apache/Web server logs. If an IP address exceeds a se
 | :--- | :--- |
 | `trafficmonitor.sh` | **The Defense Patrol**. Analyzes logs and triggers active bans. |
 | `securityofficer.sh` | **The Audit Report**. Summarizes all bans from the last 24 hours with jail names and countries. |
-| `send_traffic_report.sh` | Wrapper to send traffic data via WhatsApp. |
-| `send_security_report.sh`| Wrapper to send the security audit via WhatsApp. |
+| `send_traffic_report.sh` | Wrapper to send traffic data (use openclaw via WhatsApp). |
+| `send_security_report.sh`| Wrapper to send the security audit (use openclaw via WhatsApp). |
 
 ---
 
@@ -38,12 +38,14 @@ These scripts monitor your Apache/Web server logs. If an IP address exceeds a se
   sudo usermod -a -G adm $(whoami)
   # logout and login again for this to work
   ```
-
+  ```bash
 sudo touch /var/log/security-report.log /var/log/traffic-report.log
-sudo chown ubuntuadmin:ubuntuadmin /var/log/security-report.log /var/log/traffic-report.log
+sudo chown $(whoami):www-data /var/log/security-report.log /var/log/traffic-report.log
+sudo chmod 700 /var/log/security-report.log /var/log/traffic-report.log
+  ```
 
 ### 2. Configure Fail2ban for Permanent Bans
-Edit `/etc/fail2ban/jail.local` to enable permanent bans and monitor multiple log files (e.g., standard Apache and Clawdbot).
+Edit `/etc/fail2ban/jail.local` to enable permanent bans and monitor multiple log files (e.g., standard Apache).
 
 ```bash
 sudo nano /etc/fail2ban/jail.local
@@ -58,19 +60,18 @@ bantime = -1
 enabled = true
 port    = http,https
 logpath = /var/log/apache2/error.log
-          /var/log/apache2/clawdbot_error.log
 
 [apache-badbots]
 enabled = true
 port    = http,https
 logpath = /var/log/apache2/access.log
-          /var/log/apache2/clawdbot_access.log
+
 
 [apache-noscript]
 enabled = true
 port    = http,https
 logpath = /var/log/apache2/error.log
-          /var/log/apache2/clawdbot_error.log
+
 ```
 
 Apply changes:
@@ -88,15 +89,15 @@ sudo chmod -R 755 /var/www/html
 ---
 
 ## ⏰ Automation with Cron
-To receive a daily summary at 09:00 AM:
+To receive a daily summary at 23:59 PM:
 1. Run `crontab -e`
 2. Add the following lines:
 ```bash
 # Traffic report every morning at 09:00 AM
-0 9 * * * /var/www/html/send_traffic_report.sh >> /var/log/traffic-report.log 2>&1
+59 23 * * * /var/www/html/send_traffic_report.sh >> /var/log/traffic-report.log 2>&1
 
 # Security audit every morning at 09:00 AM
-0 9 * * * /var/www/html/send_security_report.sh >> /var/log/security-report.log 2>&1
+59 23 * * * /var/www/html/send_security_report.sh >> /var/log/security-report.log 2>&1
 ```
 
 ---
