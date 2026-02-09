@@ -134,14 +134,14 @@ Restarting Fail2ban usually cleans up the port 22 rules automatically.
 
 1. **Check for remnants:**
    ```bash
-   sudo ufw status numbered				#if use ufw
-   sudo iptables -L -n --line-numbers	#if use iptables
+   sudo ufw status numbered             #if use ufw
+   sudo iptables -L -n --line-numbers   #if use iptables
    ```
 2. **Manual Cleanup (if port 22 is still there):**
    ```bash
-   # Use the line number from the previous command
-   sudo ufw delete {LineNumber}			#if use ufw
-   sudo iptables -D INPUT {LineNumber}	#if use iptables
+   # Use the line number from the previous command with port 22
+   sudo ufw delete {LineNumber}         #if use ufw
+   sudo iptables -D INPUT {LineNumber}  #if use iptables
    ```
 3. **Save changes (Crucial):**
    ```bash
