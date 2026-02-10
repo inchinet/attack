@@ -168,14 +168,14 @@ ssh-keygen -t ed25519 -C "your_email@example.com"
 or
 ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
 ```
-
+```ini
 -t (type): Specifies the type of key to create. Modern and recommended options are ed25519 or ecdsa. The older rsa type is still widely used but requires specifying a sufficient key size.
 Example: ssh-keygen -t ed25519
 -b (bits): Specifies the number of bits in the key. This is primarily for RSA keys; ed25519 keys have a fixed size. For RSA, 4096 bits is a current best practice.
 Example: ssh-keygen -t rsa -b 4096
 -C (comment): Provides a comment that is appended to the public key file, typically used to identify the key's owner or purpose (e.g., an email address).
 Example: ssh-keygen -C "your_email@example.com"
-
+```
 
 ### 2. Copy the key to the server:
 > [!NOTE]
@@ -195,19 +195,20 @@ type $env:USERPROFILE\.ssh\id_ed25519.pub | ssh ubuntuadmin@your-server-ip "mkdi
 # Replace with your server IP
 ssh-copy-id -i ~/.ssh/id_ed25519.pub ubuntuadmin@your-server-ip
 ```
+```ini
 Option 				Description
 -i [identity_file]	Specifies the public key file to copy. If this is not provided, ssh-copy-id will try to use an identity from your ssh-agent or default key filenames in ~/.ssh/.
 -p port				Connects to a non-standard SSH port on the remote host.
 [user@]hostname		The required target, specifying the username (if different from local) and the remote host's IP address or domain name.
-
+```
 
 ### 3. Verify
 Try to log in. If it **doesn't** ask for a password, your key is working!
 
----
+
 ## 📜 License
 MIT License - Developed by [inchinet](https://github.com/inchinet). Feel free to use and modify!
----
+
 
 ##  💡 Troubleshooting & Tips
 *   **Socket Activation:** If on Ubuntu, remember to use Step 2.5!
