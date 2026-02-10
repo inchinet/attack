@@ -8,7 +8,7 @@ Changing your SSH port and disabling passwords is the most effective way to stop
 When you set `PasswordAuthentication no`, the server **ignores everyone** who tries to log in with a password. It will only talk to people who have your **SSH Private Key**.
 
 > [!IMPORTANT]
-> **To answer your question:** Even if an attacker ("outcomer") finds your new port (2345), they **cannot get in** without your private key. They can't even "guess" a password because the server won't even ask for one.
+> **To answer your question:** Even if an attacker ("outcomer") finds your new port (2222), they **cannot get in** without your private key. They can't even "guess" a password because the server won't even ask for one.
 >
 > **Note for WindTerm/Existing users:** If you already have a cert/key that works, you **do not** need to generate a new one. Just change the port in your connection settings.
 
@@ -33,22 +33,22 @@ If your server is in the cloud (like **Oracle Cloud**), the network has its own 
 3. Add an **Ingress Rule**:
    - **Source CIDR:** `0.0.0.0/0`
    - **Protocol:** `TCP`
-   - **Destination Port Range:** `2345`
+   - **Destination Port Range:** `2222`
 **DO NOT skip this.** If you change the port without opening the firewall, you will lock yourself out.
 
-### Step 1: Allow new port 2345
+### Step 1: Allow new port 2222
 
 #### Option A: If using UFW (Ubuntu/Debian)
 ```bash
-# Replace 2345 with your preferred port
-sudo ufw allow 2345/tcp
+# Replace 2222 with your preferred port
+sudo ufw allow 2222/tcp
 sudo ufw reload
 ```
 
 #### Option B: If using iptables (CentOS/Oracle/RHEL)
 ```bash
 # Allow the new port
-sudo iptables -I INPUT -p tcp --dport 2345 -j ACCEPT
+sudo iptables -I INPUT -p tcp --dport 2222 -j ACCEPT
 
 # Save the rules (Command depends on OS)
 sudo service iptables save  # Oracle/CentOS
@@ -64,7 +64,7 @@ sudo nano /etc/ssh/sshd_config
 
 Find and change these lines (remove the `#` if they are commented out):
 ```ssh
-Port 2345
+Port 2222
 PasswordAuthentication no
 PubkeyAuthentication yes
 ```
@@ -85,8 +85,8 @@ Newer Ubuntu versions use `ssh.socket` to manage connections. If this is active,
 ```ini
 [Socket]
 ListenStream=
-ListenStream=0.0.0.0:2345
-ListenStream=[::]:2345
+ListenStream=0.0.0.0:2222
+ListenStream=[::]:2222
 ```
 3. **Apply the change:**
    ```bash
@@ -99,7 +99,7 @@ ListenStream=[::]:2345
 
 ```bash
 # Test the new port
-ssh -p 2345 ubuntuadmin@your-server-ip
+ssh -p 2222 ubuntuadmin@your-server-ip
 ```
 
 ### Step 4: Restart Service
@@ -123,7 +123,7 @@ If you use Fail2ban, you must tell it to watch the new port.
    ```ini
    [sshd]
    enabled = true
-   port    = 2345
+   port    = 2222
    ```
 3. **Restart Service:**
    ```bash
@@ -229,4 +229,4 @@ MIT License - Developed by [inchinet](https://github.com/inchinet). Feel free to
 ##  💡 Troubleshooting & Tips
 *   **Socket Activation:** If on Ubuntu, remember to use Step 2.5!
 *   **Lockout Protection:** Always keep one active terminal session open while you test.
-*   **Connecting:** From now on, use: `ssh -p 2345 ...`
+*   **Connecting:** From now on, use: `ssh -p 2222 ...`
