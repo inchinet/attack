@@ -190,6 +190,22 @@ Since Windows does not have `ssh-copy-id` by default, use this PowerShell comman
 type $env:USERPROFILE\.ssh\id_ed25519.pub | ssh ubuntuadmin@your-server-ip "mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys"
 ```
 
+**What this command does:**
+*   `type`: Reads your public key file.
+*   `|` (The Pipe): Sends the content of your key to the `ssh` command.
+*   `mkdir -p ~/.ssh`: Ensures the directory exists on the server (safe to run even if it already exists).
+*   `cat >> ...`: Appends your key to the `authorized_keys` file.
+
+---
+
+### 3. Setup in WindTerm
+Once the key is on the server, you must tell WindTerm to use your **Private Key** (the file **without** `.pub`).
+
+1.  Open **Session Properties** in WindTerm.
+2.  Go to **Authentication** -> **Public Key**.
+3.  In the **Private Key** field, select your `id_ed25519` file.
+4.  Try to log in. If it **doesn't** ask for a password, your key is working!
+
 #### 🐧 If you are on Mac/Linux:
 ```bash
 # Replace with your server IP
@@ -202,7 +218,7 @@ Option 				Description
 [user@]hostname		The required target, specifying the username (if different from local) and the remote host's IP address or domain name.
 ```
 
-### 3. Verify
+### 4. Verify
 Try to log in. If it **doesn't** ask for a password, your key is working!
 
 
