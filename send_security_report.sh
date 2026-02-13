@@ -24,10 +24,10 @@ if [ -n "$OUTPUT" ]; then
     # 1. Log the full report
     echo -e "$FULL_MESSAGE" >> "$LOG_FILE"
     
-    # 2. OPTIONAL: Send via Clawdbot
+    # 2. OPTIONAL: Send via openclaw (Uncomment and set variables if using openclaw)
     # CHANNEL="WhatsApp"
     # TARGET="+85212345678"
-    # clawdbot message send --channel "$CHANNEL" --target "$TARGET" --message "$FULL_MESSAGE" >> "$LOG_FILE" 2>&1
+    # openclaw message send --channel "$CHANNEL" --target "$TARGET" --message "$FULL_MESSAGE" >> "$LOG_FILE" 2>&1
     
     echo "$(date): Security incidents logged." >> "$LOG_FILE"
 else
