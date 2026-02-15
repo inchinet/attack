@@ -125,14 +125,14 @@ sudo chmod 740 trafficmonitor.sh securityofficer.sh send_*.sh
 ---
 
 ## ⏰ Automation with Cron
-To receive a daily summary at 23:59 PM:
+To receive a daily summary:
 1. Run `crontab -e`
 2. Add the following lines:
 ```bash
-# Traffic report every morning at 09:00 AM
-59 23 * * * /var/www/html/send_traffic_report.sh >> /var/log/traffic-report.log 2>&1
+# Traffic report every hour
+0 * * * * /var/www/html/send_traffic_report.sh >> /var/log/traffic-report.log 2>&1
 
-# Security audit every morning at 09:00 AM
+# Security audit at 23:59 
 59 23 * * * /var/www/html/send_security_report.sh >> /var/log/security-report.log 2>&1
 ```
 
