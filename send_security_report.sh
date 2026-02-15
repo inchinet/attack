@@ -16,9 +16,9 @@ fi
 
 # Run the officer script
 OUTPUT=$("$OFFICER_SCRIPT")
-
+currentdatetime=$(date +"%Y-%m-%d %H:%M")
 if [ -n "$OUTPUT" ]; then
-    MESSAGE_HEADER="=== Security Officer Report ($(date)) ==="
+    MESSAGE_HEADER="=== Security Officer Report ($currentdatetime) ==="
     FULL_MESSAGE="${MESSAGE_HEADER}\n${OUTPUT}"
     
     # 1. Log the full report

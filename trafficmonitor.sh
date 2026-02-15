@@ -4,7 +4,7 @@
 JAIL="apache-auth"
 THRESHOLD=60  # Maximum requests per minute before banning
 
-sudo awk -v cutoff_epoch="$(date -d '24 hours ago' +%s)" ' \
+sudo awk -v cutoff_epoch="$(date -d '1 hour ago' +%s)" ' \
      BEGIN {\
          split("Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec", month, " ");\
          for(i=1; i<=12; i++) m[month[i]]=i;\

@@ -17,9 +17,9 @@ fi
 
 # Run the monitor script
 OUTPUT=$("$MONITOR_SCRIPT")
-
+currentdatetime=$(date +"%Y-%m-%d %H:%M")
 if [ -n "$OUTPUT" ]; then
-    MESSAGE_HEADER="=== Traffic Monitor Report ($(date)) ==="
+    MESSAGE_HEADER="=== Traffic Monitor Report ($currentdatetime) ==="
     FULL_MESSAGE="${MESSAGE_HEADER}\n${OUTPUT}"
     
     # 1. Log the full report
