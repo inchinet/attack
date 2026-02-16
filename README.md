@@ -71,9 +71,9 @@ sudo usermod -a -G www-data $(whoami)
 sudo touch /var/log/security-report.log /var/log/traffic-report.log
 sudo chown $(whoami):adm /var/log/security-report.log /var/log/traffic-report.log
 sudo chmod 640 /var/log/security-report.log /var/log/traffic-report.log
-
-echo "Success! Please LOG OUT and log back in for group changes to take effect."
 ```
+Please LOG OUT and log in for group changes to take effect.
+
 
 ### 3. Configure Fail2ban for Permanent Bans
 Edit `/etc/fail2ban/jail.local` to enable permanent bans and monitor multiple log files (e.g., standard Apache).
@@ -124,7 +124,27 @@ sudo chmod 740 trafficmonitor.sh securityofficer.sh send_*.sh
 
 ---
 
-## ⏰ Automation with Cron
+## 🔐 Permissions for Automation (Sudoers)
+Since these scripts use `sudo` inside (to ban IPs and read secure logs), they need to run without a password prompt when automated.
+
+### Option 1: Run as Root (Recommended)
+Add the cron jobs to the **root** crontab. This is the simplest and most secure method.
+1. Run `sudo crontab -e`
+2. Add the lines from the "Automation with Cron" section below.
+
+### Option 2: Configure `visudo` (Standard User)
+If you run the cron jobs as your standard user, you must allow passwordless execution for the required commands.
+1. Run `sudo visudo`
+2. Add the following lines at the bottom (replace `your_username`):
+   ```bash
+   your_username ALL=(ALL) NOPASSWD: /usr/bin/awk
+   your_username ALL=(ALL) NOPASSWD: /usr/bin/grep
+   your_username ALL=(ALL) NOPASSWD: /usr/bin/fail2ban-client
+   ```
+
+---
+
+### 5. ⏰ Automation with Cron
 To receive a daily summary:
 1. Run `crontab -e`
 2. Add the following lines:
@@ -136,7 +156,7 @@ To receive a daily summary:
 59 23 * * * /var/www/html/send_security_report.sh >> /var/log/security-report.log 2>&1
 ```
 
-## 🚀 check ban IP
+### 6. 🚀 check ban IP
 ```bash
 sudo fail2ban-client status apache-auth
 sudo fail2ban-client status apache-noscript
