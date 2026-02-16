@@ -133,7 +133,7 @@ Add the cron jobs to the **root** crontab. This is the simplest and most secure 
 2. Add the lines from the "Automation with Cron" section below.
 
 ### Option 2: Configure `visudo` (Standard User)
-If you run the cron jobs as your standard user, you must allow passwordless execution for the required commands.
+If you run the cron jobs as your standard user (Run `crontab -e`), you must allow passwordless execution for the required commands.
 1. Run `sudo visudo`
 2. Add the following lines at the bottom (replace `your_username`):
    ```bash
@@ -145,9 +145,7 @@ If you run the cron jobs as your standard user, you must allow passwordless exec
 ---
 
 ### 5. ⏰ Automation with Cron
-To receive a daily summary:
-1. Run `crontab -e`
-2. Add the following lines:
+To receive a daily summary, add the following lines in `crontab -e`:
 ```bash
 # Traffic report every hour
 0 * * * * /var/www/html/send_traffic_report.sh >> /var/log/traffic-report.log 2>&1
