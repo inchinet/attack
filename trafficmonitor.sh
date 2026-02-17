@@ -2,7 +2,7 @@
 
 # Configuration
 JAIL="apache-auth"
-THRESHOLD=60  # Maximum requests per minute before banning
+THRESHOLD=30  # Maximum requests per minute before banning
 
 sudo awk -v cutoff_epoch="$(date -d '1 hour ago' +%s)" ' \
      BEGIN {\
