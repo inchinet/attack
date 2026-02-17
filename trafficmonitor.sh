@@ -14,7 +14,8 @@ sudo awk -v cutoff_epoch="$(date -d '1 hour ago' +%s)" ' \
          split(dt[1], d, "/");\
          log_epoch = mktime(d[3] " " m[d[2]] " " d[1] " " dt[2] " " dt[3] " " dt[4]);\
          if (log_epoch >= cutoff_epoch) {\
-             print $1, substr($4, 2, 17);\
+             formatted_dt = substr($4, 2, 11) " " substr($4, 14, 5);\
+             print $1, formatted_dt;\
          }\
      }' /var/log/apache2/access.log | sort | uniq -c | awk -v limit="$THRESHOLD" ' \
      {\
