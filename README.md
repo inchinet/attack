@@ -40,13 +40,13 @@ A common question is: *"Why doesn't Fail2ban catch these high-volume attacks aut
 
 ### 2. Different Criteria
 *   **Fail2ban (Standard Jails):** Counts "retries". E.g., "3 failed attempts in 10 minutes."
-*   **TrafficMonitor.sh:** Counts "speed". E.g., "60 requests in 1 minute."  (THRESHOLD=60 is configurable)
+*   **TrafficMonitor.sh:** Counts "speed". E.g., "30 requests in 1 minute."  (THRESHOLD=30 is configurable)
 
 ### The Solution
 `trafficmonitor.sh` acts as a custom **"DoS Detector"**:
 1.  It reads the `access.log` (which standard Fail2ban ignores).
 2.  It counts the *volume* (which Fail2ban isn't counting).
-3.  When it finds an IP exceeding the threshold (e.g., 60 req/min), it manually triggers `fail2ban-client` to ban them immediately.
+3.  When it finds an IP exceeding the threshold (e.g., 30 req/min), it manually triggers `fail2ban-client` to ban them immediately.
 
 ---
 
