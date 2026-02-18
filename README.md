@@ -11,7 +11,7 @@ These scripts monitor your Apache/Web server logs. If an IP address exceeds a se
 ### Key Features
 - **Real-time Monitoring**: Scans access logs for traffic spikes.
 - **Auto-Banning**: Automatically interfaces with `fail2ban-client` to ban malicious IPs.
-- **WhatsApp Alerts**: Sends detailed reports to your phone via [OpenClaw].
+- **WhatsApp/Telegram Alerts**: Sends detailed reports to your phone via [OpenClaw] or Telegram.
 - **Jail-Specific Reporting**: Reports now show WHICH jail caught the IP (e.g., `[sshd]`, `[apache-auth]`).
 - **Permanent Protection**: Optimized for `bantime = -1`.
 - **Lightweight**: Pure Bash and AWK — no heavy dependencies.
@@ -24,9 +24,10 @@ These scripts monitor your Apache/Web server logs. If an IP address exceeds a se
 | :--- | :--- |
 | `trafficmonitor.sh` | **The Defense Patrol**. Analyzes logs and triggers active bans. |
 | `securityofficer.sh` | **The Audit Report**. Summarizes all bans from the last 24 hours with jail names and countries. |
-| `send_traffic_report.sh` | Wrapper to send traffic data (use openclaw via WhatsApp). |
-| `send_security_report.sh`| Wrapper to send the security audit (use openclaw via WhatsApp). |
+| `send_traffic_report.sh` | Wrapper to send traffic data (use openclaw via WhatsApp or Telegram). |
+| `send_security_report.sh`| Wrapper to send the security audit (use openclaw via WhatsApp or Telegram). |
 
+For Telegram, see section **Telegram Setup**
 ---
 ![Internet attack](https://github.com/inchinet/attack/blob/main/banip2.png)
 ![Internet attack](https://github.com/inchinet/attack/blob/main/issue2.png)
@@ -179,6 +180,9 @@ sudo fail2ban-client unban <IP_ADDRESS>
 sudo fail2ban-client set apache-auth banip <IP_ADDRESS>
 ```
 ---
+## Telegram Setup
+- Replace Whatsapp with Telegram setup, see
+- [Telegram](telegram-remote.md)
 
 ## 🛡️ Extra Guides
 - [SSH Security Upgrade Guide](changessh.md) 
