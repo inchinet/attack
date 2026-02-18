@@ -1,6 +1,6 @@
 
 # Linux Traffic & Security Monitor
-
+Network intrusions not only waste your bandwidth, but also involve various forms of attacks.
 A collection of lightweight shell scripts designed to protect Linux servers (specifically Ubuntu/Oracle Cloud) from automated attacks, DDoS attempts, and rapid-fire requests.
 ![Internet attack](https://github.com/inchinet/attack/blob/main/issue.png)
 
@@ -28,9 +28,11 @@ These scripts monitor your Apache/Web server logs. If an IP address exceeds a se
 | `send_security_report.sh`| Wrapper to send the security audit (use openclaw via WhatsApp). |
 
 ---
+![Internet attack](https://github.com/inchinet/attack/blob/main/banip2.png)
+![Internet attack](https://github.com/inchinet/attack/blob/main/issue2.png)
 
 ## 💡 Why trafficmonitor.sh is Necessary? (Fail2ban vs Traffic Monitor)
-
+Bots sending a bunch of .env file requests in one second attempting to read/catch different folders credentials of your network as above example. This can be defensed using trafficmonitor.sh.
 A common question is: *"Why doesn't Fail2ban catch these high-volume attacks automatically?"*
 
 ### 1. Different Log Files
@@ -179,7 +181,9 @@ sudo fail2ban-client set apache-auth banip <IP_ADDRESS>
 ---
 
 ## 🛡️ Extra Guides
-- [SSH Security Upgrade Guide](changessh.md) - Complete step-by-step guide for changing your SSH port and hardening access.
+- [SSH Security Upgrade Guide](changessh.md) 
+- Brute-force attacks that try to attack your server (pwd), modification of SSHD port 22 and the requirement for cert authentication will largely eliminated many of these attacks.
+- Complete step-by-step guide for changing your SSH port and hardening access.
 
 ## 📜 License
 MIT License - Developed by [inchinet](https://github.com/inchinet). Feel free to use and modify!
