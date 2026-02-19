@@ -27,7 +27,7 @@ These scripts monitor your Apache/Web server logs. If an IP address exceeds a se
 | `send_traffic_report.sh` | Wrapper to send traffic data (use openclaw via WhatsApp or Telegram). |
 | `send_security_report.sh`| Wrapper to send the security audit (use openclaw via WhatsApp or Telegram). |
 
-For Telegram, see section **Telegram Setup**
+For Telegram, see section *Telegram Setup*
 ---
 ![Internet attack](https://github.com/inchinet/attack/blob/main/banip2.png)
 ![Internet attack](https://github.com/inchinet/attack/blob/main/issue2.png)
@@ -113,6 +113,21 @@ Apply changes:
 sudo systemctl restart fail2ban
 ```
 
+##  Self-Healing (Unkillable Guard)
+To ensure Fail2ban automatically restarts if it ever crashes or is accidentally stopped:
+# 1. Create the directory
+```bash
+sudo mkdir -p /etc/systemd/system/fail2ban.service.d
+```
+# 2. Force the settings into the file directly
+```bash
+echo -e "[Service]\nRestart=always\nRestartSec=5" | sudo tee /etc/systemd/system/fail2ban.service.d/override.conf
+```
+# 3. Reload your server settings
+```bash
+sudo systemctl daemon-reload
+```
+
 ### 4. Upload & Activate Scripts
 Upload `trafficmonitor.sh`, `securityofficer.sh`, `send_traffic_report.sh`, and `send_security_report.sh` to `/var/www/html`.
 
@@ -180,7 +195,7 @@ sudo fail2ban-client unban <IP_ADDRESS>
 sudo fail2ban-client set apache-auth banip <IP_ADDRESS>
 ```
 ---
-## Telegram Setup
+## 🛡️ Telegram Setup
 - Replace Whatsapp with Telegram setup, see
 - [Telegram](telegram-remote.md)
 
