@@ -113,7 +113,7 @@ Apply changes:
 sudo systemctl restart fail2ban
 ```
 
-##  Self-Healing (Unkillable Guard)
+###  Self-Healing (Unkillable Guard)
 To ensure Fail2ban automatically restarts if it ever crashes or is accidentally stopped:
 1. Create the directory
 ```bash
