@@ -115,19 +115,19 @@ sudo systemctl restart fail2ban
 
 ##  Self-Healing (Unkillable Guard)
 To ensure Fail2ban automatically restarts if it ever crashes or is accidentally stopped:
-# 1. Create the directory
+1. Create the directory
 ```bash
 sudo mkdir -p /etc/systemd/system/fail2ban.service.d
 ```
-# 2. Force the settings into the file directly
+2. Force the settings into the file directly
 ```bash
 echo -e "[Service]\nRestart=always\nRestartSec=5" | sudo tee /etc/systemd/system/fail2ban.service.d/override.conf
 ```
-# 3. Reload your server settings
+3. Reload your server settings
 ```bash
 sudo systemctl daemon-reload
 ```
-# 4. Prevernt ban yourself
+4. Prevent ban yourself
 amend `trafficmonitor.sh` replace 0.123.456.789 with your own ip in whitelist, no comma in between:
 
 ```ini
