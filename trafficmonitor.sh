@@ -3,6 +3,7 @@
 # Configuration
 JAIL="apache-auth"
 THRESHOLD=30  # Maximum requests per minute before banning
+WHITELIST="0.123.456.789 127.0.0.1"
 
 sudo awk -v cutoff_epoch="$(date -d '1 hour ago' +%s)" ' \
      BEGIN {\
@@ -25,6 +26,12 @@ sudo awk -v cutoff_epoch="$(date -d '1 hour ago' +%s)" ' \
          }\
      }' | while read count ip minute; do
     if [ -n "$ip" ]; then
+        # Check if IP is in WHITELIST
+        if echo "$WHITELIST" | grep -Fq "$ip"; then
+            # echo "Whitelisted IP $ip ignored."
+            continue
+        fi
+
         # Only report and ban if the IP is NOT already banned in this jail
         if ! sudo fail2ban-client status "$JAIL" | grep -Fq "$ip"; then
             echo "ALERT: $count requests from $ip during minute ${minute/_/ }. Triggering ban..."
