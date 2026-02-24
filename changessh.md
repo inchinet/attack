@@ -69,14 +69,18 @@ PasswordAuthentication no
 PubkeyAuthentication yes
 ```
 
-### Step 2.5: Ubuntu Socket Activation (Crucial)
+### Step 2.5: Ubuntu Socket Activation (Check if needed)
 Newer Ubuntu versions use `ssh.socket` to manage connections. If this is active, the `Port` in `sshd_config` is ignored.
 
 1. **Check if socket is used:**
    ```bash
    sudo systemctl is-active ssh.socket
    ```
-2. **If it says "active", create an override:**
+2. **Determine next step:**
+   - **If it says "active":** You MUST follow the override steps below.
+   - **If it says "inactive" or "not-found":** **SKIP THIS STEP** and go straight to ### Step 3.
+
+3. **Override (Only if Active):**
    ```bash
    sudo mkdir -p /etc/systemd/system/ssh.socket.d
    sudo nano /etc/systemd/system/ssh.socket.d/override.conf
@@ -88,7 +92,7 @@ ListenStream=
 ListenStream=0.0.0.0:2222
 ListenStream=[::]:2222
 ```
-3. **Apply the change:**
+4. **Apply the change (Only if Active):**
    ```bash
    sudo systemctl daemon-reload
    sudo systemctl restart ssh.socket
