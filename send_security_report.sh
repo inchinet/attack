@@ -21,13 +21,19 @@ if [ -n "$OUTPUT" ]; then
     MESSAGE_HEADER="=== Security Officer Report ($currentdatetime) ==="
     FULL_MESSAGE="${MESSAGE_HEADER}\n${OUTPUT}"
     
-    # 1. Log the full report
+  # 1. Log the full report
     echo -e "$FULL_MESSAGE" >> "$LOG_FILE"
     
-    # 2. OPTIONAL: Send via openclaw (Uncomment and set variables if using openclaw)
-    # CHANNEL="WhatsApp"
-    # TARGET="+85212345678"
-    # openclaw message send --channel "$CHANNEL" --target "$TARGET" --message "$FULL_MESSAGE" >> "$LOG_FILE" 2>&1
+  # 2. OPTIONAL: 
+  # --- Delivery: WhatsApp (CallMeBot) ---
+  # Replace with your phone and the API key you just got
+  # WA_PHONE="85212345678" 
+  # WA_API_KEY="1234567"
+  
+  # curl -s -G "https://api.callmebot.com/whatsapp.php" \
+  #     --data-urlencode "phone=$WA_PHONE" \
+  #     --data-urlencode "text=$FULL_MESSAGE" \
+  #     --data-urlencode "apikey=$WA_API_KEY" >> "$LOG_FILE" 2>&1
     
     echo "$(date): Security incidents logged." >> "$LOG_FILE"
 else
