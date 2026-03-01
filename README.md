@@ -186,6 +186,9 @@ To receive automatic updates, add the following lines in `crontab -e`:
 ### 6. 🎯 Sniper Monitor (Background Service)
 The `sniper_monitor.sh` is a **real-time** guard. It does not run via Cron; it should run as a background service to provide instant protection.
 
+> [!TIP]
+> **Precision Defense:** Sniper Monitor uses anchor-based regex to ensure it only bans when a forbidden file is the *actual* target. Safe visitors reading blog posts about `.env` or searching for `config.php` will **not** be banned. It only snipes direct hits on sensitive system files.
+
 **Installation & Setup:**
 1. Move the script to a system path:
 ```bash

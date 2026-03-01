@@ -18,6 +18,7 @@ SERVER_NAME=$(hostname)
 
 # Forbidden Patterns (Regex)
 # These are files/folders that NO legitimate user should ever touch.
+# Precision regex: We only match if these are actual filenames in the path.
 FORBIDDEN_PATTERNS="\.env|\.git|wp-config|config\.php|phpmyadmin|setup\.php|xmlrpc\.php|\.aws|\.ssh"
 
 echo "[$(date)] Sniper Monitor started. Watching $LOG_FILE..."
@@ -25,14 +26,19 @@ echo "[$(date)] Sniper Monitor started. Watching $LOG_FILE..."
 # Use 'tail' to read new log lines in real-time
 tail -Fn0 "$LOG_FILE" | while read -r line; do
     
-    # Check if the line contains a forbidden pattern
-    if echo "$line" | grep -iE "$FORBIDDEN_PATTERNS" > /dev/null; then
-        
-        # Extract the IP address (first field in standard Apache logs)
-        IP=$(echo "$line" | awk '{print $1}')
-        
-        # Extract the requested path for the report
-        REQUEST=$(echo "$line" | awk -F'"' '{print $2}')
+    # 1. Extract the IP address
+    IP=$(echo "$line" | awk '{print $1}')
+    
+    # 2. Extract the requested URI (e.g., "GET /admin HTTP/1.1")
+    FULL_REQUEST=$(echo "$line" | awk -F'"' '{print $2}')
+    
+    # 3. Extract just the PATH (e.g., "/admin")
+    REQUEST_PATH=$(echo "$FULL_REQUEST" | awk '{print $2}')
+
+    # Bulletproof Logic: Match only if it's a full path segment (starts with / or start, ends with ?, / or end)
+    # This prevents banning "yoursite.com/blog/how-to-fix-config.php" (Safe)
+    # But it WILL ban "yoursite.com/config.php" or "yoursite.com/dir/config.php?id=1" (Ban!)
+    if echo "$REQUEST_PATH" | grep -iE "(^|/)($FORBIDDEN_PATTERNS)($|\?|/)" > /dev/null; then
         
         # INSTANT BAN
         sudo fail2ban-client set "$JAIL" banip "$IP" > /dev/null 2>&1
@@ -44,7 +50,7 @@ tail -Fn0 "$LOG_FILE" | while read -r line; do
 *Server:* $SERVER_NAME
 *Time:* $DATE_STR
 *Attacker IP:* $IP
-*Target File:* $REQUEST
+*Target File:* $REQUEST_PATH
 
 *Action:* Permanent ban applied inside jail [$JAIL] instantly."
 
@@ -53,6 +59,6 @@ tail -Fn0 "$LOG_FILE" | while read -r line; do
              -d "text=$MESSAGE" \
              -d "parse_mode=Markdown" > /dev/null 2>&1
              
-        echo "[$DATE_STR] Banned $IP for attempting to access $REQUEST"
+        echo "[$DATE_STR] Banned $IP for attempting to access $REQUEST_PATH"
     fi
 done
