@@ -11,8 +11,9 @@ These scripts monitor your Apache/Web server logs. If an IP address exceeds a se
 ### Key Features
 - **Real-time Monitoring**: Scans access logs for traffic spikes.
 - **Auto-Banning**: Automatically interfaces with `fail2ban-client` to ban malicious IPs.
-- **WhatsApp/Telegram Alerts**: Sends detailed reports to your phone via [OpenClaw] or Telegram.
+- **WhatsApp/Telegram Alerts**: Sends detailed reports to your phone via [CallMeBot](https://www.callmebot.com/) or Telegram.
 - **Jail-Specific Reporting**: Reports now show WHICH jail caught the IP (e.g., `[sshd]`, `[apache-auth]`).
+- **Weather Integration**: Includes a weather reporter to keep you updated on local conditions.
 - **Permanent Protection**: Optimized for `bantime = -1`.
 - **Lightweight**: Pure Bash and AWK — no heavy dependencies.
 
@@ -24,8 +25,9 @@ These scripts monitor your Apache/Web server logs. If an IP address exceeds a se
 | :--- | :--- |
 | `trafficmonitor.sh` | **The Defense Patrol**. Analyzes logs and triggers active bans. |
 | `securityofficer.sh` | **The Audit Report**. Summarizes all bans from the last 24 hours with jail names and countries. |
-| `send_traffic_report.sh` | Wrapper to send traffic data (use openclaw via WhatsApp or Telegram). |
-| `send_security_report.sh`| Wrapper to send the security audit (use openclaw via WhatsApp or Telegram). |
+| `weather_reporter.sh` | **Weather Watcher**. Fetches and parses local weather forecasts for reporting. |
+| `send_traffic_report.sh` | Wrapper to send traffic data via WhatsApp (CallMeBot) or Telegram. |
+| `send_security_report.sh`| Wrapper to send the security audit via WhatsApp (CallMeBot) or Telegram. |
 
 For Telegram, see section *Telegram Setup*
 ---
@@ -135,14 +137,14 @@ WHITELIST="0.123.456.789 127.0.0.1"
 ```
 
 ### 4. Upload & Activate Scripts
-Upload `trafficmonitor.sh`, `securityofficer.sh`, `send_traffic_report.sh`, and `send_security_report.sh` to `/var/www/html`.
+Upload `trafficmonitor.sh`, `securityofficer.sh`, `weather_reporter.sh`, `send_traffic_report.sh`, and `send_security_report.sh` to `/var/www/html`.
 
 **Set Strict Permissions (Only for these scripts):**
 Do not modify the entire folder. Just secure the scripts.
 ```bash
 cd /var/www/html
-sudo chown $(whoami):www-data trafficmonitor.sh securityofficer.sh send_*.sh
-sudo chmod 740 trafficmonitor.sh securityofficer.sh send_*.sh
+sudo chown $(whoami):www-data trafficmonitor.sh securityofficer.sh weather_reporter.sh send_*.sh
+sudo chmod 740 trafficmonitor.sh securityofficer.sh weather_reporter.sh send_*.sh
 ```
 *(740 = Owner can write/execute, Group can read only, Others cannot access)*
 
@@ -169,10 +171,13 @@ If you run the cron jobs as your standard user (Run `crontab -e`), you must allo
 ---
 
 ### 5. ⏰ Automation with Cron
-To receive a daily summary, add the following lines in `crontab -e`:
+To receive automatic updates, add the following lines in `crontab -e`:
 ```bash
 # Traffic report every hour
 0 * * * * /var/www/html/send_traffic_report.sh >> /var/log/traffic-report.log 2>&1
+
+# Weather report at 08:30
+30 8 * * * /var/www/html/weather_reporter.sh >> /var/log/weather-report.log 2>&1
 
 # Security audit at 23:59 
 59 23 * * * /var/www/html/send_security_report.sh >> /var/log/security-report.log 2>&1
@@ -201,9 +206,22 @@ sudo fail2ban-client unban <IP_ADDRESS>
 sudo fail2ban-client set apache-auth banip <IP_ADDRESS>
 ```
 ---
+## 🛡️ WhatsApp Alerts (CallMeBot)
+This project uses **CallMeBot** to send WhatsApp notifications for free without installing any extra software.
+
+### How to set up CallMeBot:
+1. Add **+34 621 33 14 81** (or the robot's current number from [CallMeBot](https://www.callmebot.com/)) to your phone's contacts.
+2. Send the message `"I allow callmebot to send me messages"` to that contact via WhatsApp.
+3. You will receive an **API Key**.
+4. Update the following variables in your `send_*.sh` and `weather_reporter.sh` scripts:
+   ```bash
+   WA_PHONE="your_phone_number" # e.g., 852xxxxxxx
+   WA_API_KEY="your_api_key"
+   ```
+
 ## 🛡️ Telegram Setup
-- Replace Whatsapp with Telegram setup, see
-- [Telegram](telegram-remote.md)
+If you prefer Telegram, you can use a Telegram Bot.
+- See [Telegram Setup Guide](telegram-remote.md) for details.
 
 ## 🛡️ Extra Guides
 - [SSH Security Upgrade Guide](changessh.md) 
