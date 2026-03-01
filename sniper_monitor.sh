@@ -12,8 +12,8 @@
 # Configuration
 LOG_FILE="/var/log/apache2/access.log"
 JAIL="apache-auth"
-TG_TOKEN="8346252427:AAE7Armqa3XVfAwjZmFdrFeEq_ttUbWGI-s"
-TG_CHAT_ID="187681362"
+TG_TOKEN="YOUR_TOKEN"
+TG_CHAT_ID="YOUR_ID"
 SERVER_NAME=$(hostname)
 
 # Forbidden Patterns (Regex)
