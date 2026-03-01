@@ -222,10 +222,19 @@ sudo systemctl start sniper-monitor
 ```
 
 **How to check logs:**
-To see what the Sniper is doing in real-time:
+* **Real-time monitor:**
 ```bash
 sudo journalctl -u sniper-monitor -f
 ```
+* **How many bans today?**
+```bash
+sudo journalctl -u sniper-monitor --since "24 hours ago" | grep "Banned" | wc -l
+```
+* **List all banned IPs:**
+```bash
+sudo journalctl -u sniper-monitor | awk '/Banned/ {for(i=1;i<=NF;i++) if($i=="Banned") print $(i+1)}' | sort -u
+```
+
 
 ### 7. 🚀 check ban IP
 ```bash
