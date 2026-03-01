@@ -13,7 +13,6 @@ These scripts monitor your Apache/Web server logs. If an IP address exceeds a se
 - **Auto-Banning**: Automatically interfaces with `fail2ban-client` to ban malicious IPs.
 - **WhatsApp/Telegram Alerts**: Sends detailed reports to your phone via [CallMeBot](https://www.callmebot.com/) or Telegram.
 - **Jail-Specific Reporting**: Reports now show WHICH jail caught the IP (e.g., `[sshd]`, `[apache-auth]`).
-- **Weather Integration**: Includes a weather reporter to keep you updated on local conditions.
 - **Permanent Protection**: Optimized for `bantime = -1`.
 - **Lightweight**: Pure Bash and AWK — no heavy dependencies.
 
@@ -24,10 +23,11 @@ These scripts monitor your Apache/Web server logs. If an IP address exceeds a se
 | Script | Purpose |
 | :--- | :--- |
 | `trafficmonitor.sh` | **The Defense Patrol**. Analyzes logs and triggers active bans. |
-| `securityofficer.sh` | **The Audit Report**. Summarizes all bans from the last 24 hours with jail names and countries. |
-| `weather_reporter.sh` | **Weather Watcher**. Fetches and parses local weather forecasts for reporting. |
-| `send_traffic_report.sh` | Wrapper to send traffic data via WhatsApp (CallMeBot) or Telegram. |
-| `send_security_report.sh`| Wrapper to send the security audit via WhatsApp (CallMeBot) or Telegram. |
+| `sniper_monitor.sh` | **The Sniper Guard**. Instant bans for IPs touching sensitive files (`.env`, `.git`). |
+| `securityofficer.sh` | **The Audit Report**. Summarizes all bans from the last 24 hours. |
+| `server_health.sh` | **The Heartbeat**. Reports Disk, RAM, CPU, and Service status. |
+| `send_traffic_report.sh` | Wrapper to send traffic data via WhatsApp/Telegram. |
+| `send_security_report.sh`| Wrapper to send the security audit via WhatsApp/Telegram. |
 
 For Telegram, see section *Telegram Setup*
 ---
@@ -73,9 +73,9 @@ sudo usermod -a -G www-data $(whoami)
 
 # 3. Create log files and set strict permissions (640)
 # (640 = Owner RW, Group R, Others None)
-sudo touch /var/log/security-report.log /var/log/traffic-report.log
-sudo chown $(whoami):adm /var/log/security-report.log /var/log/traffic-report.log
-sudo chmod 640 /var/log/security-report.log /var/log/traffic-report.log
+sudo touch /var/log/security-report.log /var/log/traffic-report.log /var/log/server-health.log
+sudo chown $(whoami):adm /var/log/security-report.log /var/log/traffic-report.log /var/log/server-health.log
+sudo chmod 640 /var/log/security-report.log /var/log/traffic-report.log /var/log/server-health.log
 ```
 Please LOG OUT and log in for group changes to take effect.
 
@@ -137,14 +137,14 @@ WHITELIST="0.123.456.789 127.0.0.1"
 ```
 
 ### 4. Upload & Activate Scripts
-Upload `trafficmonitor.sh`, `securityofficer.sh`, `weather_reporter.sh`, `send_traffic_report.sh`, and `send_security_report.sh` to `/var/www/html`.
+Upload `trafficmonitor.sh`, `securityofficer.sh`,  `send_traffic_report.sh`, and `send_security_report.sh` to `/var/www/html`.
 
 **Set Strict Permissions (Only for these scripts):**
 Do not modify the entire folder. Just secure the scripts.
 ```bash
 cd /var/www/html
-sudo chown $(whoami):www-data trafficmonitor.sh securityofficer.sh weather_reporter.sh send_*.sh
-sudo chmod 740 trafficmonitor.sh securityofficer.sh weather_reporter.sh send_*.sh
+sudo chown $(whoami):www-data trafficmonitor.sh securityofficer.sh send_*.sh
+sudo chmod 740 trafficmonitor.sh securityofficer.sh send_*.sh
 ```
 *(740 = Owner can write/execute, Group can read only, Others cannot access)*
 
@@ -176,14 +176,58 @@ To receive automatic updates, add the following lines in `crontab -e`:
 # Traffic report every hour
 0 * * * * /var/www/html/send_traffic_report.sh >> /var/log/traffic-report.log 2>&1
 
-# Weather report at 08:30
-30 8 * * * /var/www/html/weather_reporter.sh >> /var/log/weather-report.log 2>&1
-
 # Security audit at 23:59 
 59 23 * * * /var/www/html/send_security_report.sh >> /var/log/security-report.log 2>&1
+
+# Server health report at 09:00
+0 9 * * * /var/www/html/server_health.sh >> /var/log/server-health.log 2>&1
 ```
 
-### 6. 🚀 check ban IP
+### 6. 🎯 Sniper Monitor (Background Service)
+The `sniper_monitor.sh` is a **real-time** guard. It does not run via Cron; it should run as a background service to provide instant protection.
+
+**Installation & Setup:**
+1. Move the script to a system path:
+```bash
+sudo mv sniper_monitor.sh /usr/local/bin/
+```
+2. Set ownership and permissions (**Security best practice**):
+```bash
+# Only root should be able to edit security scripts
+sudo chown root:root /usr/local/bin/sniper_monitor.sh
+sudo chmod 755 /usr/local/bin/sniper_monitor.sh
+```
+
+3. Create the service file `/etc/systemd/system/sniper-monitor.service`:
+```ini
+[Unit]
+Description=Sniper Security Monitor
+After=network.target apache2.service fail2ban.service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/sniper_monitor.sh
+Restart=always
+RestartSec=5
+User=root
+
+[Install]
+WantedBy=multi-user.target
+```
+4. Enable and start:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable sniper-monitor
+sudo systemctl start sniper-monitor
+```
+
+**How to check logs:**
+To see what the Sniper is doing in real-time:
+```bash
+sudo journalctl -u sniper-monitor -f
+```
+
+### 7. 🚀 check ban IP
 ```bash
 sudo fail2ban-client status apache-auth
 sudo fail2ban-client status apache-noscript
@@ -213,7 +257,7 @@ This project uses **CallMeBot** to send WhatsApp notifications for free without 
 1. Add **+34 621 33 14 81** (or the robot's current number from [CallMeBot](https://www.callmebot.com/)) to your phone's contacts.
 2. Send the message `"I allow callmebot to send me messages"` to that contact via WhatsApp.
 3. You will receive an **API Key**.
-4. Update the following variables in your `send_*.sh` and `weather_reporter.sh` scripts:
+4. Update the following variables in your `send_*.sh` scripts:
    ```bash
    WA_PHONE="your_phone_number" # e.g., 852xxxxxxx
    WA_API_KEY="your_api_key"
