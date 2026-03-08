@@ -133,7 +133,7 @@ sudo systemctl daemon-reload
 amend `trafficmonitor.sh` replace 0.123.456.789 with your own ip in whitelist, no comma in between:
 
 ```ini
-WHITELIST="0.123.456.789 127.0.0.1"
+WHITELIST="0.123.456.789 127.0.0.1 ::1"
 ```
 
 ### 4. Upload & Activate Scripts

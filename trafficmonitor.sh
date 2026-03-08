@@ -3,7 +3,7 @@
 # Configuration
 JAIL="apache-auth"
 THRESHOLD=30  # Maximum requests per minute before banning
-WHITELIST="0.123.456.789 127.0.0.1"
+WHITELIST="0.123.456.789 127.0.0.1 ::1"
 
 sudo awk -v cutoff_epoch="$(date -d '1 hour ago' +%s)" ' \
      BEGIN {\
