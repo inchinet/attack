@@ -252,6 +252,11 @@ sudo fail2ban-client status sshd
 sudo fail2ban-client set apache-auth unbanip <IP_ADDRESS>
 ```
 
+*Example: Unban yourself if your server blocked its own IPv6 loopback:*
+```bash
+sudo fail2ban-client set apache-auth unbanip ::1
+```
+
 2. Unban an IP from ALL jails at once:
 ```bash
 sudo fail2ban-client unban <IP_ADDRESS>
