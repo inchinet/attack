@@ -15,7 +15,7 @@ JAIL="apache-auth"
 TG_TOKEN="YOUR_TOKEN"
 TG_CHAT_ID="YOUR_ID"
 SERVER_NAME=$(hostname)
-WHITELIST="127.0.0.1 ::1"
+WHITELIST="0.123.456.789 127.0.0.1 ::1"
 
 # Forbidden Patterns (Regex)
 # These are files/folders that NO legitimate user should ever touch.
