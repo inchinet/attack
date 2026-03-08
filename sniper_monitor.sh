@@ -15,6 +15,7 @@ JAIL="apache-auth"
 TG_TOKEN="YOUR_TOKEN"
 TG_CHAT_ID="YOUR_ID"
 SERVER_NAME=$(hostname)
+WHITELIST="127.0.0.1 ::1"
 
 # Forbidden Patterns (Regex)
 # These are files/folders that NO legitimate user should ever touch.
@@ -40,6 +41,12 @@ tail -Fn0 "$LOG_FILE" | while read -r line; do
     # But it WILL ban "yoursite.com/config.php" or "yoursite.com/dir/config.php?id=1" (Ban!)
     if echo "$REQUEST_PATH" | grep -iE "(^|/)($FORBIDDEN_PATTERNS)($|\?|/)" > /dev/null; then
         
+        # Whitelist Check
+        if echo " $WHITELIST " | grep -Fq " $IP "; then
+            # echo "Whitelisted IP $IP tried to access forbidden $REQUEST_PATH - Ignored."
+            continue
+        fi
+
         # INSTANT BAN
         sudo fail2ban-client set "$JAIL" banip "$IP" > /dev/null 2>&1
         

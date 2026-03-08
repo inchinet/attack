@@ -26,7 +26,7 @@ awk -v cutoff_epoch="$CUTOFF_EPOCH" '
                  if ($i ~ /^\[.*\]$/) {
                      jail = substr($i, 2, length($i)-2)
                  }
-                 if (($i == "Ban" || $i == "Drop") && $(i+1) ~ /^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$/) {
+                 if (($i == "Ban" || $i == "Drop") && ($(i+1) ~ /^[0-9a-fA-F:.]+$/)) {
                      ip = $(i+1);
                      if (ip != "" && jail != "") {
                          print jail, ip;
@@ -41,3 +41,4 @@ awk -v cutoff_epoch="$CUTOFF_EPOCH" '
     country=$(echo "$country" | tr -d '\n')
     echo "$ip ($country) [$jail]"
 done
+

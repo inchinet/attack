@@ -27,7 +27,7 @@ sudo awk -v cutoff_epoch="$(date -d '1 hour ago' +%s)" ' \
      }' | while read count ip minute; do
     if [ -n "$ip" ]; then
         # Check if IP is in WHITELIST
-        if echo "$WHITELIST" | grep -Fq "$ip"; then
+        if echo " $WHITELIST " | grep -Fq " $ip "; then
             # echo "Whitelisted IP $ip ignored."
             continue
         fi
