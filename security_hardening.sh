@@ -47,7 +47,7 @@ check_ports() {
     
     echo "    - Analyzing active services..."
     
-    # Standard ports for this cluster: 80, 443, 2345 (SSH), 11434 (Ollama), 3306 (MySQL), 53 (DNS), 9090 (Cockpit)
+    # Standard ports for this cluster: 80, 443, 2222 (SSH), 11434 (Ollama), 3306 (MySQL), 53 (DNS), 9090 (Cockpit)
     FOUND_PORTS=""
     for entry in $LISTENING_INFO; do
         addr_port=$(echo $entry | cut -d'|' -f1)
@@ -60,7 +60,7 @@ check_ports() {
         FOUND_PORTS="$FOUND_PORTS $port"
 
         # Alert if port is not in whitelist
-        if [[ "$port" != "80" && "$port" != "443" && "$port" != "2345" && "$port" != "8080" && "$port" != "11434" && "$port" != "3306" && "$port" != "33060" && "$port" != "53" && "$port" != "9090" ]]; then
+        if [[ "$port" != "80" && "$port" != "443" && "$port" != "2222" && "$port" != "8080" && "$port" != "11434" && "$port" != "3306" && "$port" != "33060" && "$port" != "53" && "$port" != "9090" ]]; then
             echo "    ⚠️ ALERT: Unexpected port listening: $port ($proc_info)"
         fi
 
