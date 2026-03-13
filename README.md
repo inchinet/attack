@@ -23,7 +23,7 @@ These scripts monitor your Apache/Web server logs. If an IP address exceeds a se
 | Script | Purpose |
 | :--- | :--- |
 | `trafficmonitor.sh` | **The Defense Patrol**. Analyzes logs and triggers active bans. |
-| `sniper_monitor.sh` | **The Sniper Guard**. Instant bans for IPs touching sensitive files (`.env`, `.git`). |
+| `sniper_monitor.sh` | **The Sniper Guard**. Instant bans for sensitive files and advanced web attacks (SQLi, XSS, RCE). |
 | `securityofficer.sh` | **The Audit Report**. Summarizes all bans from the last 24 hours. |
 | `server_health.sh` | **The Heartbeat**. Reports Disk, RAM, CPU, and Service status. |
 | `security_hardening.sh` | **The Blacksmith**. Applies sysctl hardening and audits ports/SSH. |
@@ -193,7 +193,7 @@ To receive automatic updates, add the following lines in `crontab -e`:
 The `sniper_monitor.sh` is a **real-time** guard. It does not run via Cron; it should run as a background service to provide instant protection.
 
 > [!TIP]
-> **Precision Defense:** Sniper Monitor uses anchor-based regex to ensure it only bans when a forbidden file is the *actual* target. Safe visitors reading blog posts about `.env` or searching for `config.php` will **not** be banned. It only snipes direct hits on sensitive system files.
+> **Precision & WAF Defense:** Sniper Monitor now uses a two-tier defense. **Tier 1 (Files):** Uses anchor-based regex to ensure it only bans when a forbidden file (like `.env` or `config.php`) is the *exact* target. **Tier 2 (Attacks):** Acts as a lightweight WAF, detecting advanced signatures for SQL Injection, XSS, and Remote Code Execution (RCE) anywhere in the request. It only snipes direct hits on sensitive assets or malicious payloads.
 
 **Installation & Setup:**
 1. Move the script to a system path:
