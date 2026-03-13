@@ -339,7 +339,7 @@ This project uses **CallMeBot** to send WhatsApp notifications for free without 
    ```
 
 ## 🛡️ Telegram Setup
-If you prefer Telegram, you can use a Telegram Bot.
+Telegram is preferred (as callmebot will have free limit), you can use a Telegram Bot.
 - See [Telegram Setup Guide](telegram-remote.md) for details.
 
 ## 🛡️ Extra Guides
