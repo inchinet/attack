@@ -26,6 +26,9 @@ These scripts monitor your Apache/Web server logs. If an IP address exceeds a se
 | `sniper_monitor.sh` | **The Sniper Guard**. Instant bans for IPs touching sensitive files (`.env`, `.git`). |
 | `securityofficer.sh` | **The Audit Report**. Summarizes all bans from the last 24 hours. |
 | `server_health.sh` | **The Heartbeat**. Reports Disk, RAM, CPU, and Service status. |
+| `security_hardening.sh` | **The Blacksmith**. Applies sysctl hardening and audits ports/SSH. |
+| `update_guard.sh` | **The Watchman**. Daily check for pending security patches. |
+| `config_guard.sh` | **The Vault Guard**. Audits permissions of .env and backup files. |
 | `send_traffic_report.sh` | Wrapper to send traffic data via WhatsApp/Telegram. |
 | `send_security_report.sh`| Wrapper to send the security audit via WhatsApp/Telegram. |
 
@@ -223,6 +226,21 @@ sudo systemctl daemon-reload
 sudo systemctl enable sniper-monitor
 sudo systemctl start sniper-monitor
 ```
+for Restart
+
+# 1. Stop the official service
+```bash
+sudo systemctl stop sniper-monitor
+```
+# 2. Kill any stray processes manually
+```bash
+sudo pkill -f sniper_monitor.sh
+```
+# 3. Start it back up
+```bash
+sudo systemctl start sniper-monitor
+```
+
 
 **How to check logs:**
 * **Real-time monitor:**
@@ -266,6 +284,30 @@ sudo fail2ban-client unban <IP_ADDRESS>
 ```bash
 sudo fail2ban-client set apache-auth banip <IP_ADDRESS>
 ```
+
+### 8. 🛡️ OS Hardening & Maintenance
+In addition to real-time monitoring, you should periodically run hardening audits.
+
+**Run Hardening Audit:**
+```bash
+sudo chmod +x security_hardening.sh update_guard.sh config_guard.sh
+sudo ./security_hardening.sh
+```
+
+**Automated Maintenance (Cron Jobs):**
+Add these to `crontab -e` to automate your security audits:
+
+```bash
+# 1. Security update check (Every Sunday at 08:30)
+30 8 * * 0 /var/www/html/update_guard.sh >> /var/log/update-guard.log 2>&1
+
+# 2. Web permission audit (Every Sunday at 00:00)
+0 0 * * 0 /var/www/html/config_guard.sh >> /var/log/config-guard.log 2>&1
+
+# 3. Monthly OS hardening check (1st of every month at 01:00)
+0 1 1 * * /var/www/html/security_hardening.sh >> /var/log/security-hardening.log 2>&1
+```
+
 ---
 ## 🛡️ WhatsApp Alerts (CallMeBot)
 This project uses **CallMeBot** to send WhatsApp notifications for free without installing any extra software.

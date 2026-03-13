@@ -18,9 +18,10 @@ SERVER_NAME=$(hostname)
 WHITELIST="0.123.456.789 127.0.0.1 ::1"
 
 # Forbidden Patterns (Regex)
-# These are files/folders that NO legitimate user should ever touch.
-# Precision regex: We only match if these are actual filenames in the path.
-FORBIDDEN_PATTERNS="\.env|\.git|wp-config|config\.php|phpmyadmin|setup\.php|xmlrpc\.php|\.aws|\.ssh"
+# These are files/folders or attack signatures that NO legitimate user should ever touch.
+# Precision regex: We match against the requested path.
+# Covers: Sensitive files (.env, .git), SQLi (union select), XSS (<script), Path Traversal (etc/passwd).
+FORBIDDEN_PATTERNS="\.env|\.git|wp-config|config\.php|phpmyadmin|setup\.php|xmlrpc\.php|\.aws|\.ssh|union.*select|information_schema|--|<script|onerror=|onload=|etc/passwd|etc/shadow|\.\./|bin/bash|bin/sh"
 
 echo "[$(date)] Sniper Monitor started. Watching $LOG_FILE..."
 
