@@ -241,7 +241,7 @@ sudo systemctl daemon-reload
 sudo systemctl enable sniper-monitor
 sudo systemctl start sniper-monitor
 ```
-for Restart
+**for Restart**
 
  1. Stop the official service
 ```bash
