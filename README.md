@@ -243,15 +243,15 @@ sudo systemctl start sniper-monitor
 ```
 for Restart
 
-# 1. Stop the official service
+ 1. Stop the official service
 ```bash
 sudo systemctl stop sniper-monitor
 ```
-# 2. Kill any stray processes manually
+ 2. Kill any stray processes manually
 ```bash
 sudo pkill -f sniper_monitor.sh
 ```
-# 3. Start it back up
+ 3. Start it back up
 ```bash
 sudo systemctl start sniper-monitor
 ```
