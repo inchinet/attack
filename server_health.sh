@@ -57,7 +57,7 @@ if [ "$ALERT_FOUND" = true ]; then
 fi
 
 # Send via Telegram
-echo "$DATE_STR: Resulting status: $STATUS_EMOJI" >> "$LOG_FILE"
+echo "$DATE_STR: Resulting status: $STATUS_EMOJI" > "$LOG_FILE"
 
 curl -s -X POST "https://api.telegram.org/bot$TG_TOKEN/sendMessage" \
      -d "chat_id=$TG_CHAT_ID" \
