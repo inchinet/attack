@@ -15,7 +15,7 @@ LOG_FILE="/var/log/update-guard.log"
 # Ensure log file is writable
 touch "$LOG_FILE" 2>/dev/null || LOG_FILE="/tmp/update-guard.log"
 
-echo "[$(date)] Checking for security updates..." >> "$LOG_FILE"
+echo "[$(date)] Checking for security updates..." > "$LOG_FILE"
 
 # 1. Update package lists (Requires root)
 sudo apt-get update > /dev/null
