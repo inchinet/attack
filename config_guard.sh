@@ -9,6 +9,11 @@
 WEB_ROOT="/var/www/html"
 LOG_FILE="/var/log/config-guard.log"
 
+# Ensure log file is writable
+touch "$LOG_FILE" 2>/dev/null || LOG_FILE="/tmp/config-guard.log"
+
+exec > >(tee -a "$LOG_FILE") 2>&1
+
 echo "[$(date)] Starting Config Guard Audit..."
 
 # 1. Check for .env files and their permissions

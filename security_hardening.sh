@@ -7,11 +7,15 @@
 # misconfigurations.
 # =================================================================
 
-echo "[$(date)] Starting Security Hardening Check..."
+# Configuration
+LOG_FILE="/var/log/security-hardening.log"
 
-# 1. Apply Sysctl Hardening (Network Layer)
-# Note: These require root to apply permanently via /etc/sysctl.conf
-# We show them here for manual application or script execution.
+# Ensure log file is writable
+touch "$LOG_FILE" 2>/dev/null || LOG_FILE="/tmp/security-hardening.log"
+
+exec > >(tee -a "$LOG_FILE") 2>&1
+
+echo "[$(date)] Starting Security Hardening Check..."
 
 apply_sysctl() {
     echo "[*] Applying Sysctl Hardening..."
