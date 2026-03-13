@@ -42,17 +42,41 @@ apply_sysctl() {
 # 2. Check for Open Ports
 check_ports() {
     echo "[*] Checking listening ports..."
-    # Get listening TCP ports
-    OPEN_PORTS=$(sudo ss -tulpn | grep LISTEN | awk '{print $5}' | cut -d: -f2 | sort -u | xargs)
-    echo "    - Open ports: $OPEN_PORTS"
+    # Get listening TCP ports with their local address
+    LISTENING_INFO=$(sudo ss -tulpn | grep LISTEN | awk '{print $5"|"$7}')
     
-    # Standard ports for this server: 80, 443, 2222 (SSH)
-    # Check for anything else
-    for port in $OPEN_PORTS; do
-        if [[ "$port" != "80" && "$port" != "443" && "$port" != "2222" && "$port" != "8080" ]]; then
-            echo "    ⚠️ ALERT: Unexpected port listening: $port"
+    echo "    - Analyzing active services..."
+    
+    # Standard ports for this cluster: 80, 443, 2345 (SSH), 11434 (Ollama), 3306 (MySQL), 53 (DNS), 9090 (Cockpit)
+    FOUND_PORTS=""
+    for entry in $LISTENING_INFO; do
+        addr_port=$(echo $entry | cut -d'|' -f1)
+        proc_info=$(echo $entry | cut -d'|' -f2)
+        
+        port=$(echo $addr_port | rev | cut -d: -f1 | rev)
+        ip=$(echo $addr_port | rev | cut -d: -f2- | rev)
+
+        # Build a list of found ports for summary
+        FOUND_PORTS="$FOUND_PORTS $port"
+
+        # Alert if port is not in whitelist
+        if [[ "$port" != "80" && "$port" != "443" && "$port" != "2345" && "$port" != "8080" && "$port" != "11434" && "$port" != "3306" && "$port" != "33060" && "$port" != "53" && "$port" != "9090" ]]; then
+            echo "    ⚠️ ALERT: Unexpected port listening: $port ($proc_info)"
+        fi
+
+        # Extra caution: Check if sensitive services are listening on public IP (0.0.0.0 or *)
+        if [[ "$port" == "11434" || "$port" == "3306" || "$port" == "33060" || "$port" == "9090" ]]; then
+            if [[ "$ip" == "*" || "$ip" == "0.0.0.0" || "$ip" == "::" ]]; then
+                echo "    🚨 SECURITY: Service on port $port ($proc_info) is PUBLICLY EXPOSED ($ip). Bind to 127.0.0.1 or your LAN IP instead!"
+            elif [[ "$ip" =~ ^192\.168\. || "$ip" =~ ^10\. || "$ip" =~ ^172\. ]]; then
+                echo "    ℹ️ NOTE: Service on port $port is bound to LAN IP ($ip). Ensure your Router/Firewall restricts access!"
+            fi
         fi
     done
+    
+    # Sort and clean the found ports list
+    CLEAN_PORTS=$(echo $FOUND_PORTS | tr ' ' '\n' | sort -un | xargs)
+    echo "    ✅ Monitored ports found: $CLEAN_PORTS"
 }
 
 # 3. Verify SSH Hardening

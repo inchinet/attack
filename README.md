@@ -27,7 +27,7 @@ These scripts monitor your Apache/Web server logs. If an IP address exceeds a se
 | `securityofficer.sh` | **The Audit Report**. Summarizes all bans from the last 24 hours. |
 | `server_health.sh` | **The Heartbeat**. Reports Disk, RAM, CPU, and Service status. |
 | `security_hardening.sh` | **The Blacksmith**. Applies sysctl hardening and audits ports/SSH. |
-| `update_guard.sh` | **The Watchman**. Daily check for pending security patches. |
+| `update_guard.sh` | **The Watchman**. Check for pending security patches. |
 | `config_guard.sh` | **The Vault Guard**. Audits permissions of .env and backup files. |
 | `send_traffic_report.sh` | Wrapper to send traffic data via WhatsApp/Telegram. |
 | `send_security_report.sh`| Wrapper to send the security audit via WhatsApp/Telegram. |
@@ -143,16 +143,19 @@ WHITELIST="0.123.456.789 127.0.0.1 ::1"
 ```
 
 ### 4. Upload & Activate Scripts
-Upload `trafficmonitor.sh`, `securityofficer.sh`,  `send_traffic_report.sh`, and `send_security_report.sh` to `/var/www/html`.
+Upload all scripts (except `sniper_monitor.sh`) to `/var/www/html`.
 
-**Set Strict Permissions (Only for these scripts):**
+**Set Strict Permissions (Consolidated):**
 Do not modify the entire folder. Just secure the scripts.
 ```bash
 cd /var/www/html
-sudo chown $(whoami):www-data trafficmonitor.sh securityofficer.sh send_*.sh
-sudo chmod 740 trafficmonitor.sh securityofficer.sh send_*.sh
+# Set ownership to your user and the adm group for all security and health scripts
+sudo chown $(whoami):adm *.sh
+
+# 750 = Owner RWX, Group RX, Others None
+sudo chmod 750 *.sh
 ```
-*(740 = Owner can write/execute, Group can read only, Others cannot access)*
+*(750 = Owner can write/execute, Group can read/execute, Others cannot access)*
 
 ---
 
@@ -301,11 +304,18 @@ sudo fail2ban-client set apache-auth banip <IP_ADDRESS>
 ```
 
 ### 8. 🛡️ OS Hardening & Maintenance
-In addition to real-time monitoring, you should periodically run hardening audits.
+In addition to real-time monitoring, you should periodically run hardening audits and ensure scripts have restrictive ownership.
+
+**Set Script Ownership:**
+Ensure these scripts are owned by your administrative user and the `adm` group.
+```bash
+sudo chown $(whoami):adm security_hardening.sh update_guard.sh config_guard.sh
+sudo chmod 750 security_hardening.sh update_guard.sh config_guard.sh
+```
 
 **Run Hardening Audit:**
 ```bash
-sudo chmod +x security_hardening.sh update_guard.sh config_guard.sh
+# Execute the hardening script
 sudo ./security_hardening.sh
 ```
 
@@ -322,6 +332,22 @@ Add these to `crontab -e` to automate your security audits:
 # 3. Monthly OS hardening check (1st of every month at 01:00)
 0 1 1 * * /var/www/html/security_hardening.sh >> /var/log/security-hardening.log 2>&1
 ```
+
+**Hardening Cockpit (Author Only):**
+By default, Cockpit (Port 9090) may be publicly accessible. To follow the "Author Only" rule, you can bind it to your LAN IP. This prevents public exposure while allowing access from your home network (or via a secret port forward on your router).
+
+```bash
+# 1. Create the override directory
+sudo mkdir -p /etc/systemd/system/cockpit.socket.d
+
+# 2. Bind to your LAN IP (replace 10.0.0.15 with your server's actual LAN IP)
+echo -e "[Socket]\nListenStream=\nListenStream=10.0.0.15:9090" | sudo tee /etc/systemd/system/cockpit.socket.d/override.conf
+
+# 3. Apply changes
+sudo systemctl daemon-reload
+sudo systemctl restart cockpit.socket
+```
+*(After this, set up a custom "Secret" External Port on your router pointing to your LAN IP for secure remote access.)*
 
 **Safe Security Upgrades (One-by-One):**
 On critical servers, running a full `apt upgrade` can be risky. It is safer to upgrade only the critical security packages flagged by `update_guard.sh` one-by-one.
