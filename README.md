@@ -190,10 +190,22 @@ To receive automatic updates, add the following lines in `crontab -e`:
 ```
 
 ### 6. 🎯 Sniper Monitor (Background Service)
-The `sniper_monitor.sh` is a **real-time** guard. It does not run via Cron; it should run as a background service to provide instant protection.
+The `sniper_monitor.sh` is a **real-time** guard. Unlike `trafficmonitor.sh`, which waits for a volume threshold (speed), the Sniper Monitor reacts to **INTENT**. It provides instant protection by acting as a lightweight Web Application Firewall (WAF).
 
-> [!TIP]
-> **Precision & WAF Defense:** Sniper Monitor now uses a two-tier defense. **Tier 1 (Files):** Uses anchor-based regex to ensure it only bans when a forbidden file (like `.env` or `config.php`) is the *exact* target. **Tier 2 (Attacks):** Acts as a lightweight WAF, detecting advanced signatures for SQL Injection, XSS, and Remote Code Execution (RCE) anywhere in the request. It only snipes direct hits on sensitive assets or malicious payloads.
+#### 🛡️ Why it can catch attacks:
+Sniper Monitor doesn't care how fast an attacker is; it cares **where** they are looking. It uses two distinct detection tiers:
+
+| Tier | Detection Logic | What it Catches |
+| :--- | :--- | :--- |
+| **1. Sensitive Files** | **Anchored Regex**: Matches full path segments only (e.g., `/.env` or `/config.php`). | Prevents hackers from snooping for credentials, database configs, or git history. |
+| **2. Attack Signatures** | **Global Signatures**: Highly malicious patterns that never appear in safe, legitimate traffic. | Detects active exploitation attempts like SQL Injection, XSS, and RCE. |
+
+#### 🔍 Detailed Pattern Logic:
+*   **Zero-False-Positives Anchoring**: It uses regex `(^|/)($FILE_PATTERNS)($|\?|/)`. This means it will ban someone trying to access `example.com/.env`, but it **won't** ban a legitimate user reading a blog post titled `how-to-fix-your-config.php`.
+*   **SQL Injection (SQLi)**: Detects keywords like `UNION SELECT`, `information_schema`, and database probing commands (`@@version`, `order by`). It even catches "Time-based Blind SQLi" by looking for `sleep()` functions.
+*   **Cross-Site Scripting (XSS)**: Instantly blocks payloads containing `<script>`, `onerror=`, `alert(`, or `javascript:` URI schemes.
+*   **Remote Code Execution (RCE) & Traversal**: Watches for directory traversal (`../`), attempts to read system files (`/etc/passwd`), and execution signatures like `base64_decode` or `bin/bash`.
+*   **Instant Interaction**: Because it uses `tail -F` on the logs and communicates directly with the `fail2ban-client`, the ban happens in milliseconds—often before the attacker's first malicious request even finishes processing.
 
 **Installation & Setup:**
 1. Move the script to a system path:
