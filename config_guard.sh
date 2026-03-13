@@ -12,7 +12,7 @@ LOG_FILE="/var/log/config-guard.log"
 # Ensure log file is writable
 touch "$LOG_FILE" 2>/dev/null || LOG_FILE="/tmp/config-guard.log"
 
-exec > >(tee -a "$LOG_FILE") 2>&1
+exec > >(tee "$LOG_FILE") 2>&1
 
 echo "[$(date)] Starting Config Guard Audit..."
 
