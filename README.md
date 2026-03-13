@@ -76,9 +76,12 @@ sudo usermod -a -G www-data $(whoami)
 
 # 3. Create log files and set strict permissions (640)
 # (640 = Owner RW, Group R, Others None)
-sudo touch /var/log/security-report.log /var/log/traffic-report.log /var/log/server-health.log
-sudo chown $(whoami):adm /var/log/security-report.log /var/log/traffic-report.log /var/log/server-health.log
-sudo chmod 640 /var/log/security-report.log /var/log/traffic-report.log /var/log/server-health.log
+sudo touch /var/log/security-report.log /var/log/traffic-report.log /var/log/server-health.log \
+           /var/log/security-hardening.log /var/log/update-guard.log /var/log/config-guard.log
+sudo chown $(whoami):adm /var/log/security-report.log /var/log/traffic-report.log /var/log/server-health.log \
+                       /var/log/security-hardening.log /var/log/update-guard.log /var/log/config-guard.log
+sudo chmod 640 /var/log/security-report.log /var/log/traffic-report.log /var/log/server-health.log \
+               /var/log/security-hardening.log /var/log/update-guard.log /var/log/config-guard.log
 ```
 Please LOG OUT and log in for group changes to take effect.
 
@@ -306,6 +309,19 @@ Add these to `crontab -e` to automate your security audits:
 
 # 3. Monthly OS hardening check (1st of every month at 01:00)
 0 1 1 * * /var/www/html/security_hardening.sh >> /var/log/security-hardening.log 2>&1
+```
+
+**Safe Security Upgrades (One-by-One):**
+On critical servers, running a full `apt upgrade` can be risky. It is safer to upgrade only the critical security packages flagged by `update_guard.sh` one-by-one.
+
+```bash
+# General Syntax
+sudo apt-get install --only-upgrade <package_name>
+
+# Recommended critical updates:
+sudo apt-get install --only-upgrade sudo
+sudo apt-get install --only-upgrade openssh-server openssh-client openssh-sftp-server
+sudo apt-get install --only-upgrade curl libcurl4
 ```
 
 ---
