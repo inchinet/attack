@@ -13,7 +13,7 @@ LOG_FILE="/var/log/security-hardening.log"
 # Ensure log file is writable
 touch "$LOG_FILE" 2>/dev/null || LOG_FILE="/tmp/security-hardening.log"
 
-exec > >(tee -a "$LOG_FILE") 2>&1
+exec > >(tee "$LOG_FILE") 2>&1
 
 echo "[$(date)] Starting Security Hardening Check..."
 
