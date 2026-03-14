@@ -14,6 +14,9 @@
 - **特定 Jail 報告**：報告現在會顯示哪個 Jail 攔截了該 IP（例如：`[sshd]`，`[apache-auth]`）。
 - **永久保護**：針對 `bantime = -1` 進行了最佳化。
 - **輕量級**：純 Bash 與 AWK — 無需龐大的依賴套件。
+- **全面的伺服器健康監控**：監控記憶體、磁碟使用率、運作中的服務與對外連網 IP 狀態 (`server_health.sh`)。
+- **系統強化與稽核**：定期檢查重要資料夾權限、待處理的安全更新，以及作業系統底層調校 (`security_hardening.sh`, `update_guard.sh`, `config_guard.sh`)。
+- **Web 應用程式防火牆 (WAF)**：輕量級、基於特徵碼的狙擊守衛，能即時攔截 SQLi、XSS 和目錄遍歷的惡意嘗試 (`sniper_monitor.sh`)。
 
 ---
 
