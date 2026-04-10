@@ -276,6 +276,24 @@ sudo journalctl -u sniper-monitor --since "24 hours ago" | grep "Banned" | wc -l
 sudo journalctl -u sniper-monitor | awk '/Banned/ {for(i=1;i<=NF;i++) if($i=="Banned") print $(i+1)}' | sort -u
 ```
 
+**額外說明**
+
+若要防止 Apache 列出目錄，您應該使用 `Options -Indexes` 指令。這樣可以阻止伺服器在沒有索引檔案（例如 index.html）時自動產生檔案清單。
+編輯您的主設定檔（通常在 Debian/Ubuntu 上是 `/etc/apache2/apache2.conf`，在 CentOS/RHEL 上是 `/etc/httpd/conf/httpd.conf`）。
+找到 `<Directory /var/www/>` 程式碼區塊（或您指定的文檔根目錄）。
+修改 `Options` 行: 
+
+```ini
+<Directory /var/www/>
+Options -Indexes +FollowSymLinks
+AllowOverride None
+Require all granted
+</Directory>
+```
+
+```bash
+sudo systemctl restart apache2 (or httpd)
+```
 
 ### 7. 🚀 檢查封鎖 IP
 ```bash
