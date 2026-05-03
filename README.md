@@ -14,7 +14,7 @@
 - **特定 Jail 報告**：報告現在會顯示哪個 Jail 攔截了該 IP（例如：`[sshd]`，`[apache-auth]`）。
 - **永久保護**：針對 `bantime = -1` 進行了最佳化。
 - **輕量級**：純 Bash 與 AWK — 無需龐大的依賴套件。
-- **全面的伺服器健康監控**：監控記憶體、磁碟使用率、運作中的服務與對外連網 IP 狀態 (`server_health.sh`)。
+- **全面的伺服器健康監控**：監控記憶體、磁碟使用率、運作中的服務、對外連網 IP 狀態以及 pm2 狀態 (`server_health.sh`)。
 - **系統強化與稽核**：定期檢查重要資料夾權限、待處理的安全更新，以及作業系統底層調校 (`security_hardening.sh`, `update_guard.sh`, `config_guard.sh`)。
 - **Web 應用程式防火牆 (WAF)**：輕量級、基於特徵碼的狙擊守衛，能即時攔截 SQLi、XSS 和目錄遍歷的惡意嘗試 (`sniper_monitor.sh`)。
 
@@ -26,8 +26,8 @@
 | :--- | :--- |
 | `trafficmonitor.sh` | **防禦巡邏**。分析日誌並觸發主動封鎖。 |
 | `sniper_monitor.sh` | **狙擊守衛**。針對敏感檔案與進階網路攻擊（SQLi、XSS、RCE）進行即時封鎖。 |
-| `securityofficer.sh` | **稽核報告**。總結過去 24 小時內的所有封鎖記錄。 |
-| `server_health.sh` | **系統心跳**。報告磁碟、記憶體、CPU 以及服務狀態。 |
+| `securityofficer.sh` | **稽核報告**。總結過去 24 小時内的所有封鎖記錄。 |
+| `server_health.sh` | **系統心跳**。報告磁碟、記憶體、CPU、服務以及 pm2 狀態。 |
 | `security_hardening.sh` | **鐵匠**。套用 sysctl 強化設定並稽核通訊埠/SSH。 |
 | `update_guard.sh` | **守望者**。檢查待處理的安全更新。 |
 | `config_guard.sh` | **金庫守衛**。稽核 .env 與備份檔案的權限。 |

@@ -29,13 +29,21 @@ LOAD_AVG=$(uptime | awk -F'load average:' '{ print $2 }' | cut -d, -f1 | xargs)
 APACHE_STATUS=$(systemctl is-active apache2)
 F2B_STATUS=$(systemctl is-active fail2ban)
 
-# 5. Build the Health Message
+# 5. Check PM2 Status
+PM2_STATUS_RAW=$(pm2 list)
+if echo "$PM2_STATUS_RAW" | grep -q -E "stopped|errored"; then
+    PM2_STATUS="Not OK"
+else
+    PM2_STATUS="OK"
+fi
+
+# 6. Build the Health Message
 DATE_STR=$(date +"%Y-%m-%d %H:%M")
 STATUS_EMOJI="✅"
 ALERT_FOUND=false
 
 # Auto-detect if something is wrong
-if [ "$DISK_USAGE" -gt "$DISK_LIMIT" ] || [ "$MEM_AVAILABLE" -lt "$MEM_LOW_GB" ] || [ "$(echo "$LOAD_AVG > $LOAD_LIMIT" | bc -l)" -eq 1 ] || [ "$APACHE_STATUS" != "active" ] || [ "$F2B_STATUS" != "active" ]; then
+if [ "$DISK_USAGE" -gt "$DISK_LIMIT" ] || [ "$MEM_AVAILABLE" -lt "$MEM_LOW_GB" ] || [ "$(echo "$LOAD_AVG > $LOAD_LIMIT" | bc -l)" -eq 1 ] || [ "$APACHE_STATUS" != "active" ] || [ "$F2B_STATUS" != "active" ] || echo "$PM2_STATUS" | grep -q "Not OK"; then
     STATUS_EMOJI="⚠️"
     ALERT_FOUND=true
 fi
@@ -47,7 +55,8 @@ MESSAGE="[$SERVER_NAME] $STATUS_EMOJI *Server Health Report ($DATE_STR)*
 🧠 *RAM:* ${MEM_AVAILABLE}GB Available
 📈 *Load:* ${LOAD_AVG}
 🚀 *Apache:* ${APACHE_STATUS}
-🛡️ *Fail2ban:* ${F2B_STATUS}"
+🛡️ *Fail2ban:* ${F2B_STATUS}
+🤖 *pm2:* ${PM2_STATUS}"
 
 # Add specific warning text if alerts were found
 if [ "$ALERT_FOUND" = true ]; then
