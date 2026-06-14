@@ -13,7 +13,8 @@ awk -v cutoff_epoch="$CUTOFF_EPOCH" '
          # Extract date and time parts
          split($1, date_parts, "-");
          split($2, time_parts, ":");
-         
+         sub(/,.*/, "", time_parts[3]); # Remove milliseconds to fix mktime parsing
+
          # Convert YYYY-MM-DD HH:MM:SS to epoch
          log_epoch = mktime(date_parts[1]" "date_parts[2]" "date_parts[3]" "time_parts[1]" "time_parts[2]" "time_parts[3]);
          
