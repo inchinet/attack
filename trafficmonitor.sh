@@ -13,6 +13,7 @@ sudo awk -v cutoff_epoch="$(date -d '1 hour ago' +%s)" ' \
      {\
          split(substr($4, 2), dt, ":");\
          split(dt[1], d, "/");\
+         sub(/[ .,].*/, "", dt[4]);\
          log_epoch = mktime(d[3] " " m[d[2]] " " d[1] " " dt[2] " " dt[3] " " dt[4]);\
          if (log_epoch >= cutoff_epoch) {\
 #             print $1, substr($4, 2, 17);\
