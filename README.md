@@ -14,7 +14,7 @@
 - **特定 Jail 報告**：報告現在會顯示哪個 Jail 攔截了該 IP（例如：`[sshd]`，`[apache-auth]`）。
 - **永久保護**：針對 `bantime = -1` 進行了最佳化。
 - **輕量級**：純 Bash 與 AWK — 無需龐大的依賴套件。
-- **全面的伺服器健康監控**：監控記憶體、磁碟使用率、運作中的服務、對外連網 IP 狀態以及 pm2 狀態 (`server_health.sh`)。
+- **全面的伺服器健康監控**：監控記憶體、磁碟使用率、運作中的服務、對外連網 IP 狀態以及 pm2 與 cron 狀態 (`server_health.sh`)。
 - **系統強化與稽核**：定期檢查重要資料夾權限、待處理的安全更新，以及作業系統底層調校 (`security_hardening.sh`, `update_guard.sh`, `config_guard.sh`)。
 - **Web 應用程式防火牆 (WAF)**：輕量級、基於特徵碼的狙擊守衛，能即時攔截 SQLi、XSS 和目錄遍歷的惡意嘗試 (`sniper_monitor.sh`)。
 
@@ -27,7 +27,7 @@
 | `trafficmonitor.sh` | **防禦巡邏**。分析日誌並觸發主動封鎖。 |
 | `sniper_monitor.sh` | **狙擊守衛**。針對敏感檔案與進階網路攻擊（SQLi、XSS、RCE）進行即時封鎖。 |
 | `securityofficer.sh` | **稽核報告**。總結過去 24 小時内的所有封鎖記錄。 |
-| `server_health.sh` | **系統心跳**。報告磁碟、記憶體、CPU、服務以及 pm2 狀態。 |
+| `server_health.sh` | **系統心跳**。報告磁碟、記憶體、CPU、服務以及 pm2 與 cron 狀態。 |
 | `security_hardening.sh` | **鐵匠**。套用 sysctl 強化設定並稽核通訊埠/SSH。 |
 | `update_guard.sh` | **守望者**。檢查待處理的安全更新。 |
 | `config_guard.sh` | **金庫守衛**。稽核 .env 與備份檔案的權限。 |
@@ -333,6 +333,36 @@ sudo chown $(whoami):adm security_hardening.sh update_guard.sh config_guard.sh
 sudo chmod 750 security_hardening.sh update_guard.sh config_guard.sh
 ```
 
+**設定 Update Guard 通知：**
+`update_guard.sh` 不應硬編 Telegram Token、Chat ID 或 WhatsApp 收件人。請在每台伺服器建立 `/etc/default/update-guard`，並且不要把這個檔案放進 Git。
+
+例如 `cwchin` 使用 Telegram：
+```bash
+sudo nano /etc/default/update-guard
+```
+
+```bash
+TG_TOKEN="your_telegram_bot_token"
+TG_CHAT_ID="your_telegram_chat_id"
+```
+
+例如 `oracloud2` 使用本機 WhatsApp bridge：
+```bash
+sudo nano /etc/default/update-guard
+```
+
+```bash
+WA_CHAT_ID="your_phone_number@s.whatsapp.net"
+WHATSAPP_BRIDGE_URL="http://localhost:3000/send"
+```
+
+可選設定：
+```bash
+APT_UPDATE_TIMEOUT=180
+CURL_TIMEOUT=20
+FINAL_URL="https://example.com/report.html"
+```
+
 **執行強化稽核：**
 ```bash
 # 執行強化腳本
@@ -340,7 +370,7 @@ sudo ./security_hardening.sh
 ```
 
 **自動化維護 (Cron Jobs)：**
-將這些加入 `crontab -e` 來自動化您的安全稽核：
+將這些加入 root crontab（執行 `sudo crontab -e`）來自動化您的安全稽核：
 
 ```bash
 # 1. 安全更新檢查 (每週日 08:30)
