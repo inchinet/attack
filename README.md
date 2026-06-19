@@ -33,6 +33,7 @@
 | `config_guard.sh` | **金庫守衛**。稽核 .env 與備份檔案的權限。 |
 | `send_traffic_report.sh` | 將流量數據封裝並透過 WhatsApp/Telegram 傳送。 |
 | `send_security_report.sh`| 將安全稽核報告封裝並透過 WhatsApp/Telegram 傳送。 |
+| `notify.sh` | **通知分發器**。根據伺服器身份將警報路由至 WhatsApp 或 Telegram 的共享腳本。 |
 
 關於 Telegram，請參閱 *Telegram 設定* 區塊。
 ---
@@ -329,12 +330,12 @@ sudo fail2ban-client set apache-auth banip <IP_ADDRESS>
 **設定腳本擁有權：**
 請確保這些腳本的擁有者是您的管理使用者與 `adm` 群組。
 ```bash
-sudo chown $(whoami):adm security_hardening.sh update_guard.sh config_guard.sh
-sudo chmod 750 security_hardening.sh update_guard.sh config_guard.sh
+sudo chown $(whoami):adm security_hardening.sh update_guard.sh config_guard.sh notify.sh
+sudo chmod 750 security_hardening.sh update_guard.sh config_guard.sh notify.sh
 ```
 
-**設定 Update Guard 通知：**
-`update_guard.sh` 不應硬編 Telegram Token、Chat ID 或 WhatsApp 收件人。請在每台伺服器建立 `/etc/default/update-guard`，並且不要把這個檔案放進 Git。
+**設定通知分發：**
+`notify.sh` 是所有警報的中央分發器。它從 `/etc/default/update-guard` 讀取私有的通知設定。請在每台伺服器建立此檔案，且不要將其放入 Git。
 
 例如 `cwchin` 使用 Telegram：
 ```bash

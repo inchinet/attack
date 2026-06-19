@@ -12,8 +12,6 @@
 # Configuration
 LOG_FILE="/var/log/apache2/access.log"
 JAIL="apache-auth"
-TG_TOKEN="YOUR_TOKEN"
-TG_CHAT_ID="YOUR_ID"
 SERVER_NAME=$(hostname)
 WHITELIST="0.123.456.789 127.0.0.1 ::1"
 
@@ -29,13 +27,13 @@ echo "[$(date)] Sniper Monitor started. Watching $LOG_FILE..."
 
 # Use 'tail' to read new log lines in real-time
 tail -Fn0 "$LOG_FILE" | while read -r line; do
-    
+
     # 1. Extract the IP address
     IP=$(echo "$line" | awk '{print $1}')
-    
+
     # 2. Extract the requested URI (e.g., "GET /admin HTTP/1.1")
     FULL_REQUEST=$(echo "$line" | awk -F'"' '{print $2}')
-    
+
     # 3. Extract just the PATH (e.g., "/admin")
     REQUEST_PATH=$(echo "$FULL_REQUEST" | awk '{print $2}')
 
@@ -45,7 +43,7 @@ tail -Fn0 "$LOG_FILE" | while read -r line; do
     # Advanced Detection: Check both Anchored Files and Global Attack Signatures
     if echo "$REQUEST_PATH" | grep -iE "(^|/)($FILE_PATTERNS)($|\?|/)" > /dev/null || \
        echo "$REQUEST_PATH" | grep -iE "($ATTACK_PATTERNS)" > /dev/null; then
-        
+
         # Whitelist Check
         if echo " $WHITELIST " | grep -Fq " $IP "; then
             # echo "Whitelisted IP $IP tried to access forbidden $REQUEST_PATH - Ignored."
@@ -54,8 +52,8 @@ tail -Fn0 "$LOG_FILE" | while read -r line; do
 
         # INSTANT BAN
         sudo fail2ban-client set "$JAIL" banip "$IP" > /dev/null 2>&1
-        
-        # Send Immediate Telegram Notification
+
+        # Send Immediate Notification via shared notify script
         DATE_STR=$(date +"%Y-%m-%d %H:%M:%S")
         MESSAGE="🛡️ *SNIPER BAN: Critical Intent Detected!* 🛡️
 
@@ -66,11 +64,12 @@ tail -Fn0 "$LOG_FILE" | while read -r line; do
 
 *Action:* Permanent ban applied inside jail [$JAIL] instantly."
 
-        curl -s -X POST "https://api.telegram.org/bot$TG_TOKEN/sendMessage" \
-             -d "chat_id=$TG_CHAT_ID" \
-             -d "text=$MESSAGE" \
-             -d "parse_mode=Markdown" > /dev/null 2>&1
-             
+        if /var/www/html/notify.sh "$MESSAGE" > /dev/null 2>&1; then
+             echo "[$DATE_STR] Notification sent via notify.sh"
+        else
+             echo "[$DATE_STR] Notification failed via notify.sh"
+        fi
+
         echo "[$DATE_STR] Banned $IP for attempting to access $REQUEST_PATH"
     fi
 done

@@ -26,50 +26,6 @@ fi
 touch "$LOG_FILE" 2>/dev/null || LOG_FILE="/tmp/update-guard.log"
 exec > >(tee "$LOG_FILE") 2>&1
 
-send_notification() {
-    local message="$1"
-    local host_name
-    host_name=$(hostname)
-
-    if [ "$host_name" = "oracloud2" ]; then
-        echo "    - Host is oracloud2, sending to WhatsApp..."
-
-        if [ -z "${WA_CHAT_ID:-}" ] || [ -z "${WHATSAPP_BRIDGE_URL:-}" ]; then
-            echo "    - WhatsApp is not configured; set WA_CHAT_ID and WHATSAPP_BRIDGE_URL."
-            return 1
-        fi
-
-        if ! command -v jq >/dev/null 2>&1; then
-            echo "    - jq is not installed; cannot safely build WhatsApp JSON."
-            return 1
-        fi
-
-        if [ -n "${FINAL_URL:-}" ]; then
-            message="${message}
-${FINAL_URL}"
-        fi
-
-        SAFE_MSG=$(printf '%s' "$message" | jq -Rs .)
-        MESSAGE_RESULT=$(curl -sS --max-time "$CURL_TIMEOUT" -X POST "$WHATSAPP_BRIDGE_URL" \
-            -H "Content-Type: application/json" \
-            -d "{\"chatId\": \"${WA_CHAT_ID}\", \"message\": ${SAFE_MSG}}" 2>&1)
-        echo "    - WhatsApp Result: $MESSAGE_RESULT"
-    else
-        echo "    - Host is not oracloud2, sending to Telegram..."
-
-        if [ -z "${TG_TOKEN:-}" ] || [ -z "${TG_CHAT_ID:-}" ]; then
-            echo "    - Telegram is not configured; set TG_TOKEN and TG_CHAT_ID."
-            return 1
-        fi
-
-        curl -sS --max-time "$CURL_TIMEOUT" -X POST "https://api.telegram.org/bot${TG_TOKEN}/sendMessage" \
-            --data-urlencode "chat_id=${TG_CHAT_ID}" \
-            --data-urlencode "text=${message}" \
-            --data-urlencode "parse_mode=Markdown" \
-            >/dev/null
-        echo "    - Telegram notification sent."
-    fi
-}
 
 echo "[$(date)] Checking for security updates..."
 
@@ -126,7 +82,7 @@ Action: Run 'sudo apt-get upgrade' to apply.
 EOF
 )
 
-if send_notification "$MESSAGE"; then
+if /var/www/html/notify.sh "$MESSAGE"; then
     echo "    - Notification sent."
 else
     echo "    - Notification failed."
