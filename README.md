@@ -10,7 +10,7 @@
 ### 主要功能
 - **即時監控**：掃描存取日誌以尋找流量峰值。
 - **自動封鎖**：自動與 `fail2ban-client` 互動以封鎖惡意 IP。
-- **WhatsApp/Telegram 警報**：透過 [CallMeBot](https://www.callmebot.com/) 或 Telegram 將詳細報告傳送到您的手機。
+- **WhatsApp/Telegram 警報**：透過 [CallMeBot](https://www.callmebot.comC)、Hermes (本地橋接) 或 Telegram 將詳細報告傳送到您的手機。
 - **特定 Jail 報告**：報告現在會顯示哪個 Jail 攔截了該 IP（例如：`[sshd]`，`[apache-auth]`）。
 - **永久保護**：針對 `bantime = -1` 進行了最佳化。
 - **輕量級**：純 Bash 與 AWK — 無需龐大的依賴套件。
@@ -414,8 +414,8 @@ sudo apt-get install --only-upgrade curl libcurl4
 ```
 
 ---
-## 🛡️ WhatsApp 警報 (CallMeBot)
-此專案使用 **CallMeBot** 發送 WhatsApp 通知，完全免費且無需安裝任何額外軟體。
+## 🛡️ WhatsApp 警報 (CallMeBot / Hermes)
+此專案使用 **CallMeBot** 或 **Hermes** 發送 WhatsApp 通知，完全免費且無需安裝任何額外軟體。
 
 ### CallMeBot 設定方法：
 1. 將 **+34 621 33 14 81**（或是從 [CallMeBot](https://www.callmebot.com/) 取得機器人最新的號碼）加入手機聯絡人。
