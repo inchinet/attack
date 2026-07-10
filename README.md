@@ -334,34 +334,44 @@ sudo chown $(whoami):adm security_hardening.sh update_guard.sh config_guard.sh n
 sudo chmod 750 security_hardening.sh update_guard.sh config_guard.sh notify.sh
 ```
 
-**設定通知分發：**
-`notify.sh` 是所有警報的中央分發器。它從 `/etc/default/update-guard` 讀取私有的通知設定。請在每台伺服器建立此檔案，且不要將其放入 Git。
 
-例如 `cwchin` 使用 Telegram：
+**設定通知方式：**
+`notify.sh` 是所有警報的統一發送器。它從 `/etc/default/update-guard` 讀取私密的通知設定。請在每台伺服器上建立此檔案，並**不要**將其納入 Git 版本控制。
+
+`notify.sh` 會在 WhatsApp gateway 無法使用時，自動改用 Telegram 發送。
+
+僅使用 Telegram 的伺服器（如 `cwchin`）：
 ```bash
 sudo nano /etc/default/update-guard
 ```
-
 ```bash
 TG_TOKEN="your_telegram_bot_token"
 TG_CHAT_ID="your_telegram_chat_id"
 ```
 
-例如 `oracloud2` 使用本機 WhatsApp bridge：
+`oracloud2` 透過 wa-gateway 發送 WhatsApp（gateway 故障時自動切換至 Telegram）：
 ```bash
 sudo nano /etc/default/update-guard
 ```
-
 ```bash
-WA_CHAT_ID="your_phone_number@s.whatsapp.net"
-WHATSAPP_BRIDGE_URL="http://localhost:3000/send"
+WA_CHAT_ID="your_phone@c.us"          # 例如：85298765432@c.us
+WA_GATEWAY_URL="http://localhost:3001/api/send"
+WA_TOKEN="your_secret_token"
+TG_TOKEN="your_telegram_bot_token"    # 備援
+TG_CHAT_ID="your_telegram_chat_id"   # 備援
 ```
 
-可選設定：
+可選設定（如不設置，將使用內建預設值）：
 ```bash
+# 執行 'apt update' 時的最大等待時間（秒），超時則放棄（鏡像來源速度慢可能導致卡住）
 APT_UPDATE_TIMEOUT=180
+
+# Telegram/WhatsApp API curl 呼叫的最大逾時時間（秒）
 CURL_TIMEOUT=20
-FINAL_URL="https://example.com/report.html"
+
+# 附加在每個告警訊息結尾的 URL
+# 例如：指向 fail2ban HTML 報告的鏈接，以便點擊查看詳情
+FINAL_URL="https://example.com/fail2ban-report.html"
 ```
 
 **執行強化稽核：**
@@ -414,25 +424,84 @@ sudo apt-get install --only-upgrade curl libcurl4
 ```
 
 ---
-## 🛡️ WhatsApp 警報 (CallMeBot / Hermes)
-此專案使用 **CallMeBot** 或 **Hermes** 發送 WhatsApp 通知，完全免費且無需安裝任何額外軟體。
+## 🛡️ WhatsApp 警報（wa-gateway / whatsapp-web.js）
 
-### CallMeBot 設定方法：
-1. 將 **+34 621 33 14 81**（或是從 [CallMeBot](https://www.callmebot.com/) 取得機器人最新的號碼）加入手機聯絡人。
-2. 透過 WhatsApp 發送訊息 `"I allow callmebot to send me messages"` 給該聯絡人。
-3. 您將收到一組 **API Key**。
-4. 在您的 `send_*.sh` 腳本中更新以下變數：
-   ```bash
-   WA_PHONE="your_phone_number" # 例如：852xxxxxxx
-   WA_API_KEY="your_api_key"
-   ```
+> **歷史沿革：** CallMeBot 及 Hermes（Baileys）已停用。
+> - Baileys rc13 於 **2026-07-01** 故障 — WhatsApp 新增強制 WebAuthn/passkey 配對驗證，導致「failed to ack notification」錯誤。
+> - 於 **2026-07-09** 改用 **wa-gateway**（whatsapp-web.js + 系統 Chromium）✅
 
+`notify.sh` 在 wa-gateway 故障時會自動切換至 Telegram，無需人工介入。
+
+### 在 oracloud2 設定 wa-gateway
+
+**1. 安裝相依套件（僅需一次）：**
+```bash
+mkdir -p ~/wa-gateway && cd ~/wa-gateway
+npm init -y
+npm install whatsapp-web.js express qrcode-terminal
+sudo snap install chromium   # 若尚未安裝
+```
+
+**2. 建立 `~/wa-gateway/server.mjs`** — 請參考本倉庫中的 [server.mjs](server.mjs)，或從 oracloud2 的 `/home/ubuntu/wa-gateway/server.mjs` 複製。
+
+**3. 配對 WhatsApp（僅需一次，需掃描 QR 碼）：**
+```bash
+rm -rf /home/ubuntu/.wa-gateway   # 清除舊 session
+WA_TOKEN=your_token node ~/wa-gateway/server.mjs
+# 用手機掃描 QR 碼 → 完成 passkey/指紋驗證 → ✅ WhatsApp ready
+# 看到 ready 後按 Ctrl+C — session 已儲存
+```
+
+**4. 安裝為 systemd 服務：**
+```bash
+sudo tee /etc/systemd/system/wa-gateway.service << 'EOF'
+[Unit]
+Description=WhatsApp Gateway
+After=network.target
+
+[Service]
+User=ubuntu
+WorkingDirectory=/home/ubuntu/wa-gateway
+Environment=WA_TOKEN=your_token
+ExecStartPre=-/usr/bin/pkill -9 -f chrome
+ExecStartPre=/bin/sleep 3
+ExecStart=/usr/bin/node /home/ubuntu/wa-gateway/server.mjs
+Restart=on-failure
+RestartSec=15
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+sudo systemctl daemon-reload
+sudo systemctl enable --now wa-gateway
+```
+
+**5. 驗證：**
+```bash
+curl -s -H "x-token: your_token" http://localhost:3001/health
+# → {"ready":true}
+./notify.sh "test WhatsApp"
+# → WhatsApp Result: OK
+```
+
+**重新配對（若 session 過期）：**
+```bash
+sudo systemctl stop wa-gateway
+pkill -9 -f chrome; sleep 2
+rm -rf /home/ubuntu/.wa-gateway
+WA_TOKEN=your_token node ~/wa-gateway/server.mjs
+# 掃描 QR → ready 後按 Ctrl+C
+sudo systemctl start wa-gateway
+```
+
+---
 ## 🛡️ Telegram 設定
-我們強烈建議使用 Telegram（因為 CallMeBot 有免費額度限制），您可以使用 Telegram Bot。
+我們強烈建議使用 Telegram 作為備援（個人 bot 免費且無頻率限制）。
 - 詳細資訊請參閱 [Telegram 設定指南](telegram-remote.md)。
 
 ## 🛡️ 額外指南
-- [SSH 安全升級指南](changessh.md) 
+- [SSH 安全升級指南](changessh.md)
 - 嘗試攻擊伺服器密碼 (pwd) 的暴力破解攻擊，可以透過修改 SSHD 預設 port 22 以及要求憑證認證，大大消除這些風險。
 - 用以變更 SSH 埠號並強化存取權限的完整步驟指南。
 
